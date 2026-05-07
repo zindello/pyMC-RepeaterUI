@@ -148,6 +148,24 @@ const sidebarItems = computed(() =>
   baseSidebarItems.filter((item) => item.route !== '/gps' || isGpsEnabled.value),
 );
 
+// Explicit route-based groups — immune to GPS filter shifting indices
+const navMonitoring = computed(() =>
+  sidebarItems.value.filter((i) =>
+    ['/', '/neighbors', '/statistics', '/gps', '/system-stats'].includes(i.route),
+  ),
+);
+const navSystem = computed(() =>
+  sidebarItems.value.filter((i) =>
+    ['/sessions', '/configuration', '/terminal'].includes(i.route),
+  ),
+);
+const navRoom = computed(() =>
+  sidebarItems.value.filter((i) => ['/room-servers', '/companions'].includes(i.route)),
+);
+const navOther = computed(() =>
+  sidebarItems.value.filter((i) => ['/logs', '/help'].includes(i.route)),
+);
+
 const modeOptions = [
   {
     id: 'forward',
@@ -362,7 +380,7 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
         <p class="text-content-muted dark:text-content-muted text-xs uppercase mb-4">Monitoring</p>
         <div class="space-y-2">
           <button
-            v-for="item in sidebarItems.slice(0, 4)"
+            v-for="item in navMonitoring"
             :key="item.name"
             @click="navigateToRoute(item.route)"
             :class="
@@ -389,7 +407,7 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
         <p class="text-content-muted dark:text-content-muted text-xs uppercase mb-4">System</p>
         <div class="space-y-2">
           <button
-            v-for="item in sidebarItems.slice(4, 8)"
+            v-for="item in navSystem"
             :key="item.name"
             @click="navigateToRoute(item.route)"
             :class="
@@ -418,7 +436,7 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
         </p>
         <div class="space-y-2">
           <button
-            v-for="item in sidebarItems.slice(8, 10)"
+            v-for="item in navRoom"
             :key="item.name"
             @click="navigateToRoute(item.route)"
             :class="
@@ -445,7 +463,7 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
         <p class="text-content-muted dark:text-content-muted text-xs uppercase mb-4">Other</p>
         <div class="space-y-2">
           <button
-            v-for="item in sidebarItems.slice(10)"
+            v-for="item in navOther"
             :key="item.name"
             @click="navigateToRoute(item.route)"
             :class="

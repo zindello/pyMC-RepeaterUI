@@ -4,6 +4,7 @@ import { ApiService, API_SERVER_URL } from '@/utils/api';
 import { useSystemStore } from '@/stores/system';
 import { getToken } from '@/utils/auth';
 import Plotly from 'plotly.js-dist-min';
+import RestartModal from '@/components/modals/RestartModal.vue';
 
 defineOptions({ name: 'CADCalibrationView' });
 
@@ -437,7 +438,11 @@ function calculateAndShowResults() {
   }
 }
 
-// Save calibration settings
+// Restart modal state
+const showRestartModal = ref(false);
+const isRestarting = ref(false);
+
+// Save calibration settings — shows restart prompt on success
 async function saveSettings() {
   if (!bestCalibrationResult.value) {
     statusMessage.value = 'Error: No calibration results to save';
@@ -452,12 +457,37 @@ async function saveSettings() {
     });
 
     if (result.success) {
-      statusMessage.value = `Settings saved! Peak=${bestCalibrationResult.value.det_peak}, Min=${bestCalibrationResult.value.det_min} applied to configuration.`;
+      showRestartModal.value = true;
     } else {
       throw new Error(result.error || 'Failed to save settings');
     }
   } catch (error) {
     statusMessage.value = `Error: Failed to save settings: ${error instanceof Error ? error.message : 'Unknown error'}`;
+  }
+}
+
+async function restartService() {
+  isRestarting.value = true;
+  try {
+    const response = await ApiService.post('/restart_service', {});
+    if (response.success) {
+      showRestartModal.value = false;
+      setTimeout(() => { window.location.reload(); }, 2000);
+    } else {
+      statusMessage.value = response.error || 'Failed to restart service';
+      showRestartModal.value = false;
+    }
+  } catch (error: any) {
+    // Network error is expected — service is going down
+    if (error.code === 'ERR_NETWORK' || error.message?.includes('Network error')) {
+      showRestartModal.value = false;
+      setTimeout(() => { window.location.reload(); }, 3000);
+    } else {
+      statusMessage.value = error.message || 'Failed to restart service';
+      showRestartModal.value = false;
+    }
+  } finally {
+    isRestarting.value = false;
   }
 }
 
@@ -616,6 +646,14 @@ onUnmounted(() => {
     </div>
 
   </div>
+
+  <RestartModal
+    v-model="showRestartModal"
+    title="CAD Calibration Saved: Restart Required"
+    message="In order for the CAD Calibration settings to take effect and the noise floor to return to normal, the service needs to be restarted."
+    :is-restarting="isRestarting"
+    @confirm="restartService"
+  />
 </template>
 
 <style scoped>

@@ -176,6 +176,23 @@ const sidebarItems = computed(() =>
   baseSidebarItems.filter((item) => item.route !== '/gps' || isGpsEnabled.value),
 );
 
+const navMonitoring = computed(() =>
+  sidebarItems.value.filter((i) =>
+    ['/', '/neighbors', '/statistics', '/gps', '/system-stats'].includes(i.route),
+  ),
+);
+const navSystem = computed(() =>
+  sidebarItems.value.filter((i) =>
+    ['/sessions', '/configuration', '/terminal'].includes(i.route),
+  ),
+);
+const navRoom = computed(() =>
+  sidebarItems.value.filter((i) => ['/room-servers', '/companions'].includes(i.route)),
+);
+const navOther = computed(() =>
+  sidebarItems.value.filter((i) => ['/logs', '/help'].includes(i.route)),
+);
+
 const modeOptions = [
   {
     id: 'forward',
@@ -411,7 +428,7 @@ const dutyCycleBarStyle = computed(() => {
           <p class="text-content-muted text-xs uppercase mb-2">Monitoring</p>
           <div class="space-y-2 mb-3">
             <button
-              v-for="item in sidebarItems.slice(0, 4)"
+              v-for="item in navMonitoring"
               :key="item.name"
               @click="navigateToRoute(item.route)"
               :class="
@@ -431,7 +448,7 @@ const dutyCycleBarStyle = computed(() => {
           <p class="text-content-muted text-xs uppercase mb-2">System</p>
           <div class="space-y-2 mb-3">
             <button
-              v-for="item in sidebarItems.slice(4, 8)"
+              v-for="item in navSystem"
               :key="item.name"
               @click="navigateToRoute(item.route)"
               :class="
@@ -451,7 +468,7 @@ const dutyCycleBarStyle = computed(() => {
           <p class="text-content-muted text-xs uppercase mb-2">Room Servers &amp; Companions</p>
           <div class="space-y-2 mb-3">
             <button
-              v-for="item in sidebarItems.slice(8, 10)"
+              v-for="item in navRoom"
               :key="item.name"
               @click="navigateToRoute(item.route)"
               :class="
@@ -471,7 +488,7 @@ const dutyCycleBarStyle = computed(() => {
           <p class="text-content-muted text-xs uppercase mb-2">Other</p>
           <div class="space-y-2 mb-3">
             <button
-              v-for="item in sidebarItems.slice(10)"
+              v-for="item in navOther"
               :key="item.name"
               @click="navigateToRoute(item.route)"
               :class="

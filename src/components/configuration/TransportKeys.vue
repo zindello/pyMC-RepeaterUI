@@ -7,18 +7,9 @@ import DeleteConfirmModal from '@/components/modals/DeleteConfirmModal.vue';
 import { useTreeStateStore } from '@/stores/treeState';
 import { useSystemStore } from '@/stores/system';
 import ApiService from '@/utils/api';
+import type { TreeNodeData } from '@/types/tree';
 
 defineOptions({ name: 'TransportKeys' });
-
-interface TreeNodeData {
-  id: number;
-  name: string;
-  children: TreeNodeData[];
-  floodPolicy: 'allow' | 'deny';
-  transport_key?: string;
-  last_used?: Date;
-  parent_id?: number;
-}
 
 // Use the global tree state store
 const treeStore = useTreeStateStore();

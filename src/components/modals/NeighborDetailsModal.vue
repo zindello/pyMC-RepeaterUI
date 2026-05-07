@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue';
 import { useSignalQuality } from '@/composables/useSignalQuality';
+import { formatRSSI, formatSNR, formatTimestamp, formatRouteType } from '@/utils/formatters';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -48,25 +49,6 @@ const emit = defineEmits<{
 const mapContainer = ref<HTMLDivElement>();
 let map: L.Map | null = null;
 
-// Format functions
-const formatTimestamp = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleString();
-};
-
-const formatRSSI = (rssi?: number | null) => {
-  if (rssi === null || rssi === undefined) return 'N/A';
-  return `${rssi} dBm`;
-};
-
-const formatSNR = (snr?: number | null) => {
-  if (snr === null || snr === undefined) return 'N/A';
-  return `${snr.toFixed(1)} dB`;
-};
-
-const formatRouteType = (routeType?: number | null) => {
-  const routes = { 0: 'Transport Flood', 1: 'Flood', 2: 'Direct', 3: 'Transport Direct' };
-  return routes[(routeType as keyof typeof routes) || 0] || 'Unknown';
-};
 
 const formatContactType = (contactType: string) => {
   const types: Record<string, string> = {

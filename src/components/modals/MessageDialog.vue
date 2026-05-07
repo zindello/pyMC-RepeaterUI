@@ -40,19 +40,11 @@ const buttonColors = {
   <div
     v-if="props.show"
     @click="handleBackdropClick"
-    class="fixed inset-0 bg-black/40 backdrop-blur-lg z-[99999] flex items-center justify-center p-4"
-    style="
-      backdrop-filter: blur(8px) saturate(180%);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    "
+    class="modal-backdrop"
   >
     <!-- Modal Content -->
     <div
-      class="bg-white dark:bg-surface-elevated backdrop-blur-xl rounded-[20px] p-6 w-full max-w-md border border-stroke-subtle dark:border-white/10"
+      class="modal-card max-w-md"
       @click.stop
     >
       <!-- Icon and Message -->

@@ -2,6 +2,14 @@
 import { ref, computed } from 'vue';
 import NeighborMenu from '@/components/ui/NeighborMenu.vue';
 import { useSignalQuality } from '@/composables/useSignalQuality';
+import {
+  formatRSSI,
+  formatSNR,
+  formatTimestamp,
+  formatPubkey,
+  formatDistance,
+  getRouteTypeBadge,
+} from '@/utils/formatters';
 
 // Reactive state
 const copiedPubkey = ref<string | null>(null);
@@ -64,64 +72,6 @@ const emit = defineEmits<{
   'toggle-view': [];
 }>();
 
-// Utility functions
-const formatTimestamp = (timestamp: number) => {
-  return new Date(timestamp * 1000).toLocaleString();
-};
-
-const formatPubkey = (pubkey: string) => {
-  return `${pubkey.slice(0, 4)}...${pubkey.slice(-4)}`;
-};
-
-const getRouteTypeBadge = (routeType?: number | null) => {
-  switch (routeType) {
-    case 2: // Direct
-      return {
-        text: 'Direct',
-        bgColor: 'bg-green-100 dark:bg-green-500/20',
-        borderColor: 'border-green-500 dark:border-green-400/30',
-        textColor: 'text-green-600 dark:text-green-400',
-      };
-    case 3: // Transport Direct
-      return {
-        text: 'Transport Direct',
-        bgColor: 'bg-green-100 dark:bg-green-600/20',
-        borderColor: 'border-green-600/40 dark:border-green-500/30',
-        textColor: 'text-green-700 dark:text-green-500',
-      };
-    case 1: // Flood
-      return {
-        text: 'Flood',
-        bgColor: 'bg-yellow-100 dark:bg-yellow-500/20',
-        borderColor: 'border-yellow-500 dark:border-yellow-400/30',
-        textColor: 'text-yellow-600 dark:text-yellow-400',
-      };
-    case 0: // Transport Flood
-      return {
-        text: 'Transport Flood',
-        bgColor: 'bg-orange-100 dark:bg-orange-500/20',
-        borderColor: 'border-orange-500 dark:border-orange-400/30',
-        textColor: 'text-orange-600 dark:text-orange-400',
-      };
-    default:
-      return {
-        text: 'Unknown',
-        bgColor: 'bg-gray-500/20',
-        borderColor: 'border-gray-400/30',
-        textColor: 'text-gray-400',
-      };
-  }
-};
-
-const formatRSSI = (rssi?: number | null) => {
-  if (rssi === null || rssi === undefined) return 'N/A';
-  return `${rssi} dBm`;
-};
-
-const formatSNR = (snr?: number | null) => {
-  if (snr === null || snr === undefined) return 'N/A';
-  return `${snr.toFixed(1)} dB`;
-};
 
 const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
   const R = 6371; // Earth's radius in kilometers
@@ -136,8 +86,6 @@ const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
-
-const formatDistance = (km: number): string => `${km.toFixed(1)} km`;
 
 const getDistanceFromBase = (advert: Advert) => {
   if (

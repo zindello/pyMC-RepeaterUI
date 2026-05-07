@@ -142,8 +142,8 @@
                     v-if="table.has_timestamp && table.row_count > 0"
                     class="text-xs text-content-muted"
                   >
-                    {{ formatTimestamp(table.oldest_timestamp) }} —
-                    {{ formatTimestamp(table.newest_timestamp) }}
+                    {{ formatDateShort(table.oldest_timestamp) }} —
+                    {{ formatDateShort(table.newest_timestamp) }}
                     <span class="text-content-muted/60 ml-1"
                       >({{ dateDays(table.oldest_timestamp, table.newest_timestamp) }}d)</span
                     >
@@ -183,11 +183,11 @@
     <Teleport to="body">
       <div
         v-if="purgeConfirm"
-        class="fixed inset-0 bg-black/50 backdrop-blur-lg z-[99999] flex items-center justify-center p-4"
+        class="modal-backdrop-heavy"
         @click.self="!purgeConfirm.executing && (purgeConfirm = null)"
       >
         <div
-          class="bg-white dark:bg-surface-elevated backdrop-blur-xl rounded-[20px] p-6 w-full max-w-lg border border-stroke-subtle dark:border-white/10"
+          class="modal-card max-w-lg"
           @click.stop
         >
           <div class="flex items-start gap-3 mb-5">
@@ -288,6 +288,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import ApiService from '@/utils/api';
+import { formatBytes, formatDateShort } from '@/utils/formatters';
 
 interface TableInfo {
   name: string;
@@ -333,23 +334,6 @@ const totalRows = computed(() => {
 
 function isPurgeable(name: string) {
   return PURGEABLE_TABLES.has(name);
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
-  const value = bytes / Math.pow(1024, i);
-  return `${value < 10 ? value.toFixed(1) : Math.round(value)} ${units[i]}`;
-}
-
-function formatTimestamp(ts?: number): string {
-  if (!ts) return '—';
-  return new Date(ts * 1000).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
 }
 
 function dateDays(oldest?: number, newest?: number): number {

@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue';
-
-interface TreeNodeData {
-  id: number;
-  name: string;
-  children: TreeNodeData[];
-  floodPolicy: 'allow' | 'deny';
-  transport_key?: string;
-  last_used?: Date;
-}
+import type { TreeNodeData } from '@/types/tree';
+import { formatTimeAgo } from '@/utils/formatters';
 
 interface Props {
   show: boolean;
@@ -96,26 +89,6 @@ watchEffect(async () => {
   liveTransportKey.value = await deriveTransportKey(name);
 });
 
-// Format time ago function
-const formatTimeAgo = (date: Date): string => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffYears = Math.floor(diffDays / 365);
-
-  if (diffMinutes < 60) {
-    return `${diffMinutes}m ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours}h ago`;
-  } else if (diffDays < 365) {
-    return `${diffDays}d ago`;
-  } else {
-    return `${diffYears}y ago`;
-  }
-};
-
 // Copy to clipboard function
 const copyToClipboard = (text: string) => {
   if (window.navigator?.clipboard) {
@@ -167,19 +140,11 @@ const handleBackdropClick = (event: MouseEvent) => {
   <div
     v-if="show"
     @click="handleBackdropClick"
-    class="fixed inset-0 bg-black/50 backdrop-blur-lg z-[99999] flex items-center justify-center p-4"
-    style="
-      backdrop-filter: blur(8px) saturate(180%);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    "
+    class="modal-backdrop"
   >
     <!-- Modal Content -->
     <div
-      class="bg-white dark:bg-surface-elevated backdrop-blur-xl rounded-[20px] p-6 w-full max-w-lg border border-stroke-subtle dark:border-white/10"
+      class="modal-card max-w-lg"
       @click.stop
     >
       <!-- Header -->

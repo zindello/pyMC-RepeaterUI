@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTreeStateStore } from '@/stores/treeState';
-
-interface TreeNodeData {
-  id: number;
-  name: string;
-  children: TreeNodeData[];
-  floodPolicy: 'allow' | 'deny';
-  transport_key?: string;
-  last_used?: Date;
-}
+import type { TreeNodeData } from '@/types/tree';
+import { formatTimeAgo, getTruncatedKey } from '@/utils/formatters';
 
 interface Props {
   node: TreeNodeData;
@@ -48,34 +41,6 @@ const isExpanded = computed({
 // Memoize whether node has children to prevent unnecessary reactivity
 const hasChildren = computed(() => props.node.children.length > 0);
 
-// Format the last used time to human readable format
-function formatLastUsed(date: Date | undefined): string {
-  if (!date) return 'Never';
-
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffYears = Math.floor(diffDays / 365);
-
-  if (diffMinutes < 60) {
-    return `${diffMinutes}m ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours}h ago`;
-  } else if (diffDays < 365) {
-    return `${diffDays}d ago`;
-  } else {
-    return `${diffYears}y ago`;
-  }
-}
-
-// Get truncated transport key for display
-function getTruncatedKey(key: string | undefined): string {
-  if (!key) return 'No key';
-  if (key.length <= 16) return key;
-  return `${key.slice(0, 8)}...${key.slice(-8)}`;
-}
 
 function handleRowClick() {
   if (props.unlocked) {
@@ -300,7 +265,7 @@ function copyToClipboard(event: Event) {
         <div v-if="node.last_used" class="hidden sm:flex items-center gap-1">
           <span class="text-xs text-white/40">Last Heard:</span>
           <span class="text-xs text-white/50" :title="node.last_used.toLocaleString()">
-            {{ formatLastUsed(node.last_used) }}
+            {{ formatTimeAgo(node.last_used) }}
           </span>
         </div>
         <div v-else class="hidden sm:flex items-center gap-1">

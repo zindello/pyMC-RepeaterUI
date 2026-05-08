@@ -27,6 +27,9 @@ import NeighborsIcon from '../icons/neighbors.vue';
 import GpsIcon from '../icons/gps.vue';
 
 import DutycycleIcon from '../icons/dutycycle.vue';
+import { useTheme } from '@/composables/useTheme';
+import logoDark from '@/assets/logo/logo_pyMC_RBGA_1k-Dark.png';
+import logoLight from '@/assets/logo/logo_pyMC_RBGA_1k-Light.png';
 
 defineOptions({ name: 'MobileSidebar' });
 
@@ -45,6 +48,8 @@ const emit = defineEmits<Emits>();
 const router = useRouter();
 const route = useRoute();
 const systemStore = useSystemStore();
+const { theme } = useTheme();
+const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight);
 
 // Load chart only after sidebar is visible for smoother opening
 watch(
@@ -330,7 +335,7 @@ const dutyCycleBarStyle = computed(() => {
         <div class="mb-6 flex items-center justify-between">
           <div>
             <div class="mb-2">
-              <img src="@/assets/pymclogo.png" alt="pyMC" class="h-[5.2rem]" />
+<img :src="logoSrc" alt="pyMC" class="h-[5.2rem]" />
             </div>
             <p class="text-content-secondary dark:text-[#C3C3C3] text-sm">
               {{ systemStore.nodeName }}

@@ -23,6 +23,9 @@ import NeighborsIcon from '../icons/neighbors.vue';
 import GpsIcon from '../icons/gps.vue';
 
 import DutycycleIcon from '../icons/dutycycle.vue';
+import { useTheme } from '@/composables/useTheme';
+import logoDark from '@/assets/logo/logo_pyMC_RBGA_1k-Dark.png';
+import logoLight from '@/assets/logo/logo_pyMC_RBGA_1k-Light.png';
 
 defineOptions({ name: 'SidebarNav' });
 
@@ -30,6 +33,8 @@ const router = useRouter();
 const route = useRoute();
 const systemStore = useSystemStore();
 const wsStore = useWebSocketStore();
+const { theme } = useTheme();
+const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight);
 
 // Loading states for buttons
 const sendingAdvert = ref(false);
@@ -281,7 +286,7 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
       <div class="mb-12">
         <div class="mb-3 flex justify-center">
           <img
-            src="@/assets/pymclogo.png"
+            :src="logoSrc"
             alt="pyMC"
             class="h-[6.5rem]"
           />

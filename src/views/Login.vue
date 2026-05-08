@@ -34,9 +34,9 @@
         <div class="text-center mb-6 sm:mb-10">
           <div class="mb-4 sm:mb-6 flex justify-center">
             <img
-              src="@/assets/pymclogo.png"
+              :src="logoSrc"
               alt="pyMC"
-              class="logo-image logo-image-animated h-36 sm:h-40 relative z-10"
+              class="logo-image h-36 sm:h-40 relative z-10"
             />
           </div>
           <p class="text-content-secondary dark:text-content-muted text-xs sm:text-sm">
@@ -178,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { setToken, getClientId } from '@/utils/auth';
 import { authClient } from '@/utils/api';
@@ -187,6 +187,9 @@ import ChangePasswordModal from '@/components/modals/ChangePasswordModal.vue';
 import GitHubIcon from '@/components/icons/github.vue';
 import CoffeeIcon from '@/components/icons/coffee.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
+import { useTheme } from '@/composables/useTheme';
+import logoDark from '@/assets/logo/logo_pyMC_RBGA_1k-Dark.png';
+import logoLight from '@/assets/logo/logo_pyMC_RBGA_1k-Light.png';
 
 // Define component name for linting
 defineOptions({
@@ -203,6 +206,8 @@ interface LoginResponse {
 
 const router = useRouter();
 const appRuntime = useAppRuntimeStore();
+const { theme } = useTheme();
+const logoSrc = computed(() => theme.value === 'dark' ? logoDark : logoLight);
 
 const username = ref('admin');
 const password = ref('');
@@ -389,25 +394,6 @@ const handlePasswordChangeClose = () => {
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* Logo shimmer effect on button hover - brightness flash */
-.login-content:has(.button-glass:hover:not(:disabled)) .logo-image {
-  filter: brightness(1.4) drop-shadow(0 0 12px rgba(170, 232, 232, 0.7));
-  transform: scale(1.02);
-}
-
-.login-content:has(.button-glass:hover:not(:disabled)) .logo-glow {
-  opacity: 0.6;
-  transform: scale(1.15);
-}
-
-/* Hide logo glow in light mode to prevent odd appearance */
-.logo-glow {
-  opacity: 0;
-}
-
-.dark .logo-glow {
-  opacity: 1;
-}
 
 /* Floating animation for logo */
 @keyframes float {
@@ -494,27 +480,6 @@ const handlePasswordChangeClose = () => {
   animation: shake 0.5s ease-in-out;
 }
 
-/* Subtle logo aura without circular halo artifact */
-@keyframes logo-aura-cycle {
-  0%,
-  100% {
-    filter: brightness(1) saturate(1) drop-shadow(0 0 7px rgba(56, 189, 248, 0.45));
-  }
-  25% {
-    filter: brightness(1.02) saturate(1.05) drop-shadow(0 0 10px rgba(99, 102, 241, 0.42));
-  }
-  50% {
-    filter: brightness(1) saturate(1.03) drop-shadow(0 0 8px rgba(34, 211, 238, 0.45));
-  }
-  75% {
-    filter: brightness(1.02) saturate(1.05) drop-shadow(0 0 10px rgba(52, 211, 153, 0.42));
-  }
-}
-
-.logo-image-animated {
-  animation: logo-aura-cycle 6s ease-in-out infinite;
-  will-change: filter;
-}
 
 /* Form group hover effect */
 .form-group {

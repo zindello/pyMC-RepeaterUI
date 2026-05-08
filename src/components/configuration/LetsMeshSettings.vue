@@ -556,7 +556,7 @@ onUnmounted(() => {
                 class="cfg-input font-mono" />
             </div>
             <div>
-              <label class="block text-xs sm:text-sm text-content-secondary dark:text-content-muted mb-1">Companion Pubkey / Owner / Callsign</label>
+              <label class="block text-xs sm:text-sm text-content-secondary dark:text-content-muted mb-1">Owner Companion Pubkey</label>
               <input v-model="ownerInput" type="text" placeholder="Optional"
                 class="cfg-input" />
             </div>

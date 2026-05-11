@@ -821,6 +821,4 @@ const stepTitles = [
   animation: float-slowest 20s ease-in-out infinite;
   will-change: transform, opacity;
 }
-
-}
 </style>

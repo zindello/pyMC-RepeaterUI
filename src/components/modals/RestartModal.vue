@@ -22,9 +22,9 @@ const hasFailed = ref(false);
 let pollTimer: ReturnType<typeof setTimeout> | null = null;
 let pollAttempts = 0;
 let stableCount = 0;
-// 10s initial delay + up to 25×1s polling = 35s total
+// 10s initial delay + up to 50×1s polling = 60s total
 // 5 consecutive successes required before reload — needs headroom above STABLE_REQUIRED
-const MAX_ATTEMPTS = 25;
+const MAX_ATTEMPTS = 50;
 const STABLE_REQUIRED = 5;
 
 function close() {
@@ -138,7 +138,7 @@ onBeforeUnmount(() => {
                   Service Did Not Restart
                 </h3>
                 <p class="mt-1 text-sm text-content-secondary dark:text-content-muted">
-                  The service did not respond after 35 seconds. Please log into the device and check the system logs.
+                  The service did not respond after 60 seconds. Please log into the device and check the system logs.
                 </p>
               </div>
             </div>

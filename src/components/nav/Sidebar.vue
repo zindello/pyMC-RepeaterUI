@@ -678,7 +678,7 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
 
       <div class="flex items-center justify-center gap-3">
         <a
-          href="https://discord.gg/SMHkUDwf"
+          href="https://discord.gg/qreAsnmJ"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-content-primary dark:bg-white/10 border border-stroke-subtle dark:border-stroke/20 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 hover:border-indigo-500/50 transition-all duration-300 hover:scale-110 group backdrop-blur-sm"
@@ -687,7 +687,28 @@ const coreVersion = computed(() => parseVersion(systemStore.coreVersion));
           <DiscordIcon class="w-5 h-5 text-white group-hover:text-indigo-500 transition-colors" />
         </a>
         <a
-          href="https://github.com/rightup"
+          href="https://pymc.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-content-primary dark:bg-white/10 border border-stroke-subtle dark:border-stroke/20 hover:bg-cyan-50 dark:hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-all duration-300 hover:scale-110 group backdrop-blur-sm"
+          title="pyMC Website"
+        >
+          <svg
+            class="w-5 h-5 text-white group-hover:text-cyan-500 transition-colors"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.75"
+              d="M12 21a9.004 9.004 0 008.716-6M12 21a9.004 9.004 0 01-8.716-6M12 21c1.656 0 3-4.03 3-9s-1.344-9-3-9m0 18c-1.656 0-3-4.03-3-9s1.344-9 3-9m0 0a9.004 9.004 0 018.716 6M12 3a9.004 9.004 0 00-8.716 6M3.284 9h17.432M3.284 15h17.432"
+            />
+          </svg>
+        </a>
+        <a
+          href="https://github.com/pyMC-dev/pyMC_Repeater"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-content-primary dark:bg-white/10 border border-stroke-subtle dark:border-stroke/20 hover:bg-primary/20 dark:hover:bg-primary/30 hover:border-primary/50 transition-all duration-300 hover:scale-110 group backdrop-blur-sm"

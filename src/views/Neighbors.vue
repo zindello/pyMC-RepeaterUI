@@ -61,7 +61,7 @@ const showAllMapContacts = ref(getPreference('neighbors_showAllMapContacts', fal
 const showFilters = ref(getPreference('neighbors_showFilters', false));
 const filters = ref(
   getPreference('neighbors_filters', {
-    zeroHop: 'all', // 'all', 'true', 'false'
+    zeroHop: 'true', // 'all', 'true', 'false'
     routeType: 'all', // 'all', 'direct', 'flood', 'transport_direct', 'transport_flood'
     searchText: '',
   }),

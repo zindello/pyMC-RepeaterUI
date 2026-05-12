@@ -4,6 +4,10 @@ Web dashboard for [pyMC_Repeater](https://github.com/pymc-dev/pyMC_Repeater) —
 
 Built with **Vue 3**, **TypeScript**, and **TailwindCSS**. This repository holds the standalone UI source; it builds directly into the repeater project and is served by its embedded web server. Keeping the frontend separate keeps the repeater codebase lean and makes UI contributions easier.
 
+## Documentation
+
+Developer reference for the frontend is in [`docs/`](docs/README.md). It covers the data service architecture, design token system, shared UI components, z-index layering scale, and architecture decision records for significant design choices.
+
 ## Contributing
 
 Pull requests are welcome — please target the **dev** branch.

@@ -13,6 +13,7 @@ const error = ref<string | null>(null);
 const identities = ref<any>(null);
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
+const isSaving = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const editingIdentity = ref<any>(null);
 const editOriginalName = ref('');
@@ -89,6 +90,7 @@ async function createIdentity() {
 }
 
 async function updateIdentity() {
+  isSaving.value = true;
   const payload: Record<string, unknown> = {
     name: editOriginalName.value,
     identity_key: editingIdentity.value.identity_key,
@@ -106,18 +108,18 @@ async function updateIdentity() {
     const response = await ApiService.updateIdentity(payload);
 
     if (response.success) {
-      showEditModal.value = false;
-      editingIdentity.value = null;
-      // Allow the backend time to deregister and re-register the companion
-      // after the hot-reload before we refresh the list.
+      // Keep modal open in saving state while the backend hot-reloads the companion.
       await new Promise((r) => setTimeout(r, 2000));
       await fetchIdentities();
-      showMessage(response.message || 'Companion updated successfully!', 'success');
+      showEditModal.value = false;
+      editingIdentity.value = null;
     } else {
       showMessage(`Failed to update companion: ${response.error}`, 'error');
     }
   } catch (err) {
     showMessage(`Error updating companion: ${err}`, 'error');
+  } finally {
+    isSaving.value = false;
   }
 }
 
@@ -606,6 +608,13 @@ function onImportDone(imported: number) {
       <div
         class="bg-white dark:bg-surface-elevated backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
       >
+        <!-- Saving state -->
+        <div v-if="isSaving" class="flex flex-col items-center justify-center gap-4 py-12">
+          <div class="animate-spin w-10 h-10 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full"></div>
+          <p class="text-content-secondary dark:text-content-muted text-sm">Saving…</p>
+        </div>
+
+        <template v-else>
         <h2 class="text-xl font-bold text-content-primary dark:text-content-primary mb-4">
           Edit Companion
         </h2>
@@ -694,6 +703,7 @@ function onImportDone(imported: number) {
             Update
           </button>
         </div>
+        </template>
       </div>
     </div>
     </Teleport>

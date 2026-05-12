@@ -26,6 +26,7 @@ const showEditModal = ref(false);
 const showRestartModal = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const editingIdentity = ref<any>(null);
+const editOriginalName = ref('');
 const showKeyInCreate = ref(false);
 const showKeyInEdit = ref(false);
 const visibleKeys = ref<Set<string>>(new Set());
@@ -93,7 +94,13 @@ async function fetchIdentities() {
   }
 }
 
+function roundCoords(settings: { latitude: number; longitude: number }) {
+  settings.latitude = Math.round(settings.latitude * 1e6) / 1e6;
+  settings.longitude = Math.round(settings.longitude * 1e6) / 1e6;
+}
+
 async function createIdentity() {
+  roundCoords(newIdentity.value.settings);
   try {
     const response = await ApiService.createIdentity(newIdentity.value);
 
@@ -110,8 +117,16 @@ async function createIdentity() {
 }
 
 async function updateIdentity() {
+  const payload = { ...editingIdentity.value, settings: { ...editingIdentity.value.settings } };
+  roundCoords(payload.settings);
+  if (payload.name !== editOriginalName.value) {
+    payload.new_name = payload.name;
+    payload.name = editOriginalName.value;
+  } else {
+    delete payload.new_name;
+  }
   try {
-    const response = await ApiService.updateIdentity(editingIdentity.value);
+    const response = await ApiService.updateIdentity(payload);
 
     if (response.success) {
       showEditModal.value = false;
@@ -174,10 +189,11 @@ async function sendRoomServerAdvert(name: string) {
 
 function openEditModal(identity: unknown) {
   editingIdentity.value = JSON.parse(JSON.stringify(identity));
+  editOriginalName.value = editingIdentity.value.name;
+  delete editingIdentity.value.new_name;
   if (!editingIdentity.value.settings) {
     editingIdentity.value.settings = {};
   }
-  if (!editingIdentity.value.new_name) editingIdentity.value.new_name = '';
   if (!editingIdentity.value.settings.admin_password) editingIdentity.value.settings.admin_password = '';
   if (!editingIdentity.value.settings.guest_password) editingIdentity.value.settings.guest_password = '';
   if (editingIdentity.value.settings.latitude == null) editingIdentity.value.settings.latitude = 0;
@@ -208,14 +224,14 @@ function openCreateModal() {
 }
 
 function handleLocationPickerSelect(location: { latitude: number; longitude: number }) {
-  newIdentity.value.settings.latitude = location.latitude;
-  newIdentity.value.settings.longitude = location.longitude;
+  newIdentity.value.settings.latitude = Math.round(location.latitude * 1e6) / 1e6;
+  newIdentity.value.settings.longitude = Math.round(location.longitude * 1e6) / 1e6;
 }
 
 function handleLocationPickerSelectEdit(location: { latitude: number; longitude: number }) {
   if (editingIdentity.value) {
-    editingIdentity.value.settings.latitude = location.latitude;
-    editingIdentity.value.settings.longitude = location.longitude;
+    editingIdentity.value.settings.latitude = Math.round(location.latitude * 1e6) / 1e6;
+    editingIdentity.value.settings.longitude = Math.round(location.longitude * 1e6) / 1e6;
   }
 }
 
@@ -1075,24 +1091,12 @@ async function removeClient(publicKey: string, identityHash?: string) {
         <!-- Form -->
         <form @submit.prevent="updateIdentity" class="modal-form">
 
-          <!-- Current Name (read-only) -->
+          <!-- Name -->
           <div>
-            <label class="modal-field-label">Current Name</label>
+            <label class="modal-field-label">Name <span class="text-red-500">*</span></label>
             <input
-              :value="editingIdentity.name"
-              disabled
+              v-model="editingIdentity.name"
               type="text"
-              class="modal-input cursor-not-allowed opacity-60"
-            />
-          </div>
-
-          <!-- New Name -->
-          <div>
-            <label class="modal-field-label">New Name (optional)</label>
-            <input
-              v-model="editingIdentity.new_name"
-              type="text"
-              placeholder="Leave empty to keep current name"
               class="modal-input"
             />
           </div>

@@ -28,8 +28,8 @@ import GpsIcon from '../icons/gps.vue';
 
 import DutycycleIcon from '../icons/dutycycle.vue';
 import { useTheme } from '@/composables/useTheme';
-import logoDark from '@/assets/logo/logo_pyMC_RBGA_1k-Dark.png';
-import logoLight from '@/assets/logo/logo_pyMC_RBGA_1k-Light.png';
+import logoDark from '@/assets/logo/transparent/logo_pyMC_RBGA_440-Dark.png';
+import logoLight from '@/assets/logo/transparent/logo_pyMC_RBGA_440-Light.png';
 
 defineOptions({ name: 'MobileSidebar' });
 

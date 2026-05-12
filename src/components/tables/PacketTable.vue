@@ -4,6 +4,7 @@ import { usePacketStore } from '@/stores/packets';
 import { useDataService } from '@/stores/dataService';
 import type { RecentPacket } from '@/types/api';
 import PacketDetailsModal from '@/components/modals/PacketDetailsModal.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 import { getPreference, setPreference } from '@/utils/preferences';
 
 defineOptions({ name: 'PacketTable' });
@@ -1062,9 +1063,7 @@ onBeforeUnmount(() => {
       class="flex justify-center mt-6 pt-4 border-t border-stroke-subtle dark:border-stroke"
     >
       <div class="flex items-center gap-2">
-        <div
-          class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"
-        ></div>
+        <Spinner size="sm" />
         <span class="text-primary text-sm">Loading more records...</span>
       </div>
     </div>
@@ -1091,20 +1090,6 @@ onBeforeUnmount(() => {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-/* Spinner animation optimization */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 0.8s linear infinite;
 }
 
 /* Packet list animations */

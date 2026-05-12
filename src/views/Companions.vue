@@ -5,6 +5,7 @@ import ConfirmDialog from '@/components/modals/ConfirmDialog.vue';
 import MessageDialog from '@/components/modals/MessageDialog.vue';
 import ImportRepeaterContactsModal from '@/components/modals/ImportRepeaterContactsModal.vue';
 import RestartModal from '@/components/modals/RestartModal.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'CompanionsView' });
 
@@ -370,9 +371,7 @@ function onImportDone(imported: number) {
     >
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="text-center">
-          <div
-            class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full mx-auto mb-4"
-          ></div>
+          <Spinner class="mx-auto mb-4" />
           <div class="text-content-secondary dark:text-content-primary/70">
             Loading companions...
           </div>

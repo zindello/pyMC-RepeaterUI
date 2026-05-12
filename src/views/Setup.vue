@@ -627,10 +627,7 @@ const stepTitles = [
                 : 'bg-background-mute dark:bg-stroke/5 text-content-muted dark:text-content-muted border border-stroke-subtle dark:border-stroke/10'
             "
           >
-            <div
-              v-if="setupStore.isSubmitting"
-              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></div>
+            <Spinner v-if="setupStore.isSubmitting" size="sm" color="white" />
             <span v-if="setupStore.isSubmitting">Setting up...</span>
             <span v-else-if="setupStore.isLastStep">Complete Setup</span>
             <span v-else>Next</span>

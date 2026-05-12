@@ -3,6 +3,7 @@ import { ref, onMounted, onBeforeUnmount, computed, nextTick, markRaw, toRaw } f
 import ApiService from '@/utils/api';
 import { formatBytes } from '@/utils/formatters';
 import SparklineChart from '@/components/ui/Sparkline.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -716,9 +717,7 @@ onBeforeUnmount(() => {
             class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-white/5 backdrop-blur-sm z-20"
           >
             <div class="text-center">
-              <div
-                class="animate-spin w-6 h-6 border-2 border-stroke-subtle dark:border-stroke/20 border-t-orange-400 rounded-full mx-auto mb-2"
-              ></div>
+              <Spinner class="mx-auto mb-2" />
               <div class="text-content-secondary dark:text-content-muted text-xs">
                 Loading CPU data...
               </div>
@@ -786,9 +785,7 @@ onBeforeUnmount(() => {
             class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-white/5 backdrop-blur-sm z-20"
           >
             <div class="text-center">
-              <div
-                class="animate-spin w-6 h-6 border-2 border-stroke-subtle dark:border-stroke/20 border-t-green-400 rounded-full mx-auto mb-2"
-              ></div>
+              <Spinner class="mx-auto mb-2" />
               <div class="text-content-secondary dark:text-content-muted text-xs">
                 Loading memory data...
               </div>
@@ -1020,9 +1017,7 @@ onBeforeUnmount(() => {
       <div class="text-content-secondary dark:text-content-muted mb-2">
         Loading system statistics...
       </div>
-      <div
-        class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-gray-900 dark:border-t-white/70 rounded-full mx-auto"
-      ></div>
+      <Spinner class="mx-auto" />
     </div>
 
     <div v-if="error" class="glass-card rounded-[15px] p-8 text-center">

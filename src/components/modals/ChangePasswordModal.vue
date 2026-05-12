@@ -92,10 +92,7 @@
             :disabled="loading"
             class="px-4 py-2 bg-primary/20 hover:bg-primary/30 text-white rounded-lg border border-primary/50 transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            <div
-              v-if="loading"
-              class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></div>
+            <Spinner v-if="loading" size="sm" color="white" />
             {{ loading ? 'Changing...' : 'Change Password' }}
           </button>
         </div>
@@ -108,6 +105,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { authClient } from '@/utils/api';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'ChangePasswordModal' });
 

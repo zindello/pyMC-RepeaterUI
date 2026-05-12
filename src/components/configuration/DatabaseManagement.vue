@@ -30,9 +30,7 @@
           class="cfg-btn-secondary"
         >
           <span v-if="loading" class="flex items-center gap-1.5">
-            <span
-              class="animate-spin w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full inline-block"
-            ></span>
+            <Spinner size="xs" color="current" class="inline-block" />
             Loading…
           </span>
           <span v-else>Refresh</span>
@@ -78,9 +76,7 @@
       <!-- Loading state -->
       <div v-if="loading && !stats" class="flex items-center justify-center py-12">
         <div class="text-center">
-          <div
-            class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-cyan-500 dark:border-t-primary rounded-full mx-auto mb-4"
-          ></div>
+          <Spinner class="mx-auto mb-4" />
           <div class="text-content-secondary dark:text-content-muted">Loading database info…</div>
         </div>
       </div>
@@ -161,9 +157,7 @@
                     class="px-2.5 py-1 bg-red-500/10 dark:bg-red-400/10 hover:bg-red-500/20 dark:hover:bg-red-400/20 text-red-700 dark:text-red-400 rounded border border-red-500/30 dark:border-red-400/20 transition-colors text-xs disabled:opacity-50"
                   >
                     <span v-if="purging[table.name]" class="flex items-center gap-1">
-                      <span
-                        class="animate-spin w-3 h-3 border border-current border-t-transparent rounded-full inline-block"
-                      ></span>
+                      <Spinner size="xs" color="current" class="inline-block" />
                       Purging…
                     </span>
                     <span v-else>Empty</span>
@@ -289,6 +283,7 @@
 import { ref, computed, onMounted } from 'vue';
 import ApiService from '@/utils/api';
 import { formatBytes, formatDateShort } from '@/utils/formatters';
+import Spinner from '@/components/ui/Spinner.vue';
 
 interface TableInfo {
   name: string;

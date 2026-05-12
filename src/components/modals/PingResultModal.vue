@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useSystemStore } from '@/stores/system';
 import { useSignalQuality } from '@/composables/useSignalQuality';
+import Spinner from '@/components/ui/Spinner.vue';
 
 interface PingResult {
   target_id: string;
@@ -235,9 +236,7 @@ const close = () => {
           <div class="p-6">
             <!-- Loading State -->
             <div v-if="loading" class="text-center py-8">
-              <div
-                class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"
-              ></div>
+              <Spinner size="lg" class="mx-auto mb-4" />
               <p class="text-content-secondary dark:text-content-muted">Sending ping...</p>
               <p class="text-content-muted dark:text-content-muted text-sm mt-1">
                 Waiting for response...

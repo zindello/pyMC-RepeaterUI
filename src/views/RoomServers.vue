@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/modals/ConfirmDialog.vue';
 import MessageDialog from '@/components/modals/MessageDialog.vue';
 import RestartModal from '@/components/modals/RestartModal.vue';
 import LocationPicker from '@/components/modals/LocationPicker.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'RoomServersView' });
 
@@ -582,9 +583,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="text-center">
-          <div
-            class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full mx-auto mb-4"
-          ></div>
+          <Spinner class="mx-auto mb-4" />
           <div class="text-content-secondary dark:text-content-primary/70">
             Loading room servers...
           </div>
@@ -1289,9 +1288,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
           class="flex items-center justify-center py-12"
         >
           <div class="text-center">
-            <div
-              class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full mx-auto mb-4"
-            ></div>
+            <Spinner class="mx-auto mb-4" />
             <div class="text-content-secondary dark:text-content-primary/70">
               Loading messages...
             </div>
@@ -1441,9 +1438,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
             <div
               class="flex items-center justify-center gap-2 text-content-secondary dark:text-content-muted text-sm"
             >
-              <div
-                class="animate-spin w-4 h-4 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full"
-              ></div>
+              <Spinner size="sm" />
               Loading...
             </div>
           </div>

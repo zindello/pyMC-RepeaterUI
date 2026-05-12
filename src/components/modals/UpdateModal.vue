@@ -2,6 +2,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue';
 import ApiService from '@/utils/api';
 import { getToken } from '@/utils/auth';
+import Spinner from '@/components/ui/Spinner.vue';
 
 interface Props {
   show: boolean;
@@ -559,9 +560,7 @@ function reloadPage() {
             >
               <p class="text-xs text-content-muted mb-1">On GitHub</p>
               <div v-if="checkingVersion" class="flex items-center gap-1.5 mt-1">
-                <span
-                  class="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin inline-block"
-                ></span>
+                <Spinner size="xs" class="inline-block" />
                 <span class="text-xs text-content-muted">Checking…</span>
               </div>
               <p
@@ -632,10 +631,7 @@ function reloadPage() {
             >
               <span>What's New</span>
               <span class="flex items-center gap-1">
-                <span
-                  v-if="changelogLoading"
-                  class="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin inline-block"
-                ></span>
+                <Spinner v-if="changelogLoading" size="xs" class="inline-block" />
                 <span v-else class="text-content-muted"
                   >{{ changelog.length }} commit{{ changelog.length !== 1 ? 's' : '' }}</span
                 >
@@ -804,18 +800,14 @@ function reloadPage() {
                 v-if="installState === 'restarting' && restartPhase === 'verifying'"
                 class="flex items-center gap-2 mt-2 text-primary"
               >
-                <span
-                  class="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin inline-block"
-                ></span>
+                <Spinner size="xs" class="inline-block" />
                 Service is back — verifying version…
               </div>
               <div
                 v-else-if="installState === 'restarting'"
                 class="flex items-center gap-2 mt-2 text-yellow-400"
               >
-                <span
-                  class="w-3 h-3 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin inline-block"
-                ></span>
+                <Spinner size="xs" class="inline-block" />
                 {{
                   restartPhase === 'going-down'
                     ? 'Waiting for service to stop…'
@@ -837,9 +829,7 @@ function reloadPage() {
             v-if="installState === 'restarting' && restartPhase === 'verifying'"
             class="flex items-center gap-3 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-xl p-3 text-sm text-primary"
           >
-            <span
-              class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin shrink-0"
-            ></span>
+            <Spinner size="sm" class="shrink-0" />
             <div>
               <p class="font-medium">Checking version…</p>
               <p class="text-xs opacity-70 mt-0.5">
@@ -851,9 +841,7 @@ function reloadPage() {
             <div
               class="flex items-center gap-3 bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/30 rounded-xl p-3 text-sm text-yellow-800 dark:text-yellow-400"
             >
-              <span
-                class="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin shrink-0"
-              ></span>
+              <Spinner size="sm" class="shrink-0" />
               <div>
                 <p class="font-medium">
                   {{ restartPhase === 'going-down' ? 'Stopping service…' : 'Starting service…' }}
@@ -987,18 +975,14 @@ function reloadPage() {
               v-if="installState === 'installing'"
               class="flex items-center justify-center gap-2"
             >
-              <span
-                class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
-              ></span>
+              <Spinner size="sm" color="white" />
               Installing…
             </span>
             <span
               v-else-if="installState === 'restarting'"
               class="flex items-center justify-center gap-2"
             >
-              <span
-                class="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin"
-              ></span>
+              <Spinner size="sm" />
               Restarting service…
             </span>
             <span v-else>{{ installButtonLabel }}</span>

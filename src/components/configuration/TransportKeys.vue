@@ -8,6 +8,7 @@ import { useTreeStateStore } from '@/stores/treeState';
 import { useSystemStore } from '@/stores/system';
 import ApiService from '@/utils/api';
 import type { TreeNodeData } from '@/types/tree';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'TransportKeys' });
 
@@ -388,7 +389,7 @@ function handleUnscopedFloodPolicyChange(policy: 'allow' | 'deny') {
 
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-green"></div>
+        <Spinner />
         <span class="ml-2 text-content-secondary dark:text-content-muted">Loading regions…</span>
       </div>
 

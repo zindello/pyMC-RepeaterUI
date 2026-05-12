@@ -26,7 +26,7 @@
             class="cfg-btn-secondary"
           >
             <span v-if="loading" class="flex items-center gap-1.5">
-              <span class="animate-spin w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full inline-block"></span>
+              <Spinner size="xs" color="current" class="inline-block" />
               Checking…
             </span>
             <span v-else>Check Again</span>
@@ -40,7 +40,7 @@
               : 'bg-green-500/20 hover:bg-green-500/30 text-green-700 dark:text-green-400 border-green-500/50'"
           >
             <span v-if="toggling" class="flex items-center gap-1.5">
-              <span class="animate-spin w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full inline-block"></span>
+              <Spinner size="xs" color="current" class="inline-block" />
               {{ tracing ? 'Stopping…' : 'Starting…' }}
             </span>
             <span v-else>{{ tracing ? 'Stop Tracing' : 'Start Tracing' }}</span>
@@ -207,6 +207,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import ApiService from '@/utils/api';
+import Spinner from '@/components/ui/Spinner.vue';
 
 interface GrowthStat {
   file: string;

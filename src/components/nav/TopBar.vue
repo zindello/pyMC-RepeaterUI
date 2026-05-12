@@ -10,6 +10,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue';
 import UpdateModal from '@/components/modals/UpdateModal.vue';
 import { useManagedPolling } from '@/composables/useManagedPolling';
 import { useAppRuntimeStore } from '@/stores/appRuntime';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'TopBar' });
 
@@ -318,7 +319,7 @@ const toggleMobileSidebar = () => {
       <div class="flex items-center gap-3 sm:gap-4">
         <div class="text-right" style="min-width: 180px">
           <div v-if="loading" class="flex items-center gap-2 justify-end">
-            <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+            <Spinner size="xs" />
             <p class="text-content-secondary dark:text-content-muted text-xs sm:text-sm">
               Loading...
             </p>
@@ -505,7 +506,7 @@ const toggleMobileSidebar = () => {
                   stroke-linejoin="round"
                 />
               </svg>
-              <div v-else class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+              <Spinner v-else size="sm" />
               {{ restarting ? 'Restarting...' : 'Restart Service' }}
             </button>
             <div class="border-t border-stroke-subtle dark:border-stroke/10"></div>
@@ -676,7 +677,7 @@ const toggleMobileSidebar = () => {
               class="bg-background-mute dark:bg-background-mute p-3 rounded-lg border border-stroke-subtle dark:border-stroke/10"
             >
               <div class="flex items-center justify-center gap-2">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                <Spinner size="sm" />
                 <span class="text-content-secondary dark:text-content-secondary"
                   >Checking for updates...</span
                 >
@@ -775,7 +776,7 @@ const toggleMobileSidebar = () => {
               class="bg-background-mute dark:bg-background-mute p-3 rounded-lg border border-stroke-subtle dark:border-stroke/10 text-center"
             >
               <div class="flex items-center justify-center gap-2">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                <Spinner size="sm" />
                 <span class="text-content-secondary dark:text-content-secondary"
                   >Scanning mesh network...</span
                 >
@@ -796,7 +797,7 @@ const toggleMobileSidebar = () => {
         class="bg-surface dark:bg-surface-elevated rounded-2xl p-8 shadow-2xl max-w-sm w-full mx-4 text-center border border-stroke-subtle dark:border-stroke/20"
       >
         <div v-if="!restartFailed" class="mb-4">
-          <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
+          <Spinner size="lg" class="mx-auto" />
         </div>
         <div v-else class="mb-4">
           <svg

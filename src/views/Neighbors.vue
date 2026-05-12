@@ -6,6 +6,7 @@ import { useNeighborStore, CONTACT_TYPE_MAP } from '@/stores/neighbors';
 import type { Advert } from '@/stores/neighbors';
 import { useDataService } from '@/stores/dataService';
 import DeleteNeighborModal from '@/components/modals/DeleteNeighborModal.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 import PingResultModal from '@/components/modals/PingResultModal.vue';
 import NeighborDetailsModal from '@/components/modals/NeighborDetailsModal.vue';
 import NetworkMap from '@/components/neighbors/NetworkMap.vue';
@@ -311,9 +312,7 @@ onMounted(() => {
     <!-- Loading State -->
     <div v-if="loading" class="flex items-center justify-center py-12">
       <div class="text-center">
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"
-        ></div>
+        <Spinner size="lg" class="mx-auto mb-4" />
         <p class="text-content-secondary dark:text-content-muted">Loading neighbor data...</p>
       </div>
     </div>

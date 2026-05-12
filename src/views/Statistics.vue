@@ -27,6 +27,7 @@ import 'chartjs-adapter-date-fns';
 // Import Plotly.js for 3D pie chart
 import Plotly from 'plotly.js-dist-min';
 import { useManagedPolling } from '@/composables/useManagedPolling';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'StatisticsView' });
 
@@ -1268,9 +1269,7 @@ useManagedPolling(fetchAllData, {
             class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-white/5 backdrop-blur-xs z-20"
           >
             <div class="text-center">
-              <div
-                class="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-purple-600 dark:border-t-purple-400 rounded-full mx-auto mb-2"
-              ></div>
+              <Spinner class="mx-auto mb-2" />
               <div class="text-content-secondary dark:text-content-muted text-[10px] sm:text-xs">
                 Loading packet rate data...
               </div>
@@ -1313,9 +1312,7 @@ useManagedPolling(fetchAllData, {
             class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-white/5 backdrop-blur-xs z-20"
           >
             <div class="text-center">
-              <div
-                class="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-amber-600 dark:border-t-amber-400 rounded-full mx-auto mb-2"
-              ></div>
+              <Spinner class="mx-auto mb-2" />
               <div class="text-content-secondary dark:text-content-muted text-[10px] sm:text-xs">
                 Loading noise floor data...
               </div>
@@ -1335,9 +1332,7 @@ useManagedPolling(fetchAllData, {
           <!-- Loading state -->
           <div v-if="chartLoadingStates.routePie" class="flex items-center justify-center flex-1">
             <div class="text-center">
-              <div
-                class="animate-spin w-6 h-6 border-2 border-stroke-subtle dark:border-stroke/20 border-t-green-600 dark:border-t-green-400 rounded-full mx-auto mb-2"
-              ></div>
+              <Spinner class="mx-auto mb-2" />
               <div class="text-content-secondary dark:text-content-muted text-xs">
                 Loading route data...
               </div>
@@ -1395,9 +1390,7 @@ useManagedPolling(fetchAllData, {
       <div class="text-content-secondary dark:text-content-muted mb-2 text-sm">
         Loading statistics...
       </div>
-      <div
-        class="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-content-primary dark:border-t-white/70 rounded-full mx-auto"
-      ></div>
+      <Spinner class="mx-auto" />
     </div>
 
     <div v-if="error" class="glass-card rounded-[15px] p-6 sm:p-8 text-center">

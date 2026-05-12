@@ -15,6 +15,7 @@ import BackupRestore from '@/components/configuration/BackupRestore.vue';
 import DatabaseManagement from '@/components/configuration/DatabaseManagement.vue';
 import MemoryDebug from '@/components/configuration/MemoryDebug.vue';
 import { getPreference, setPreference } from '@/utils/preferences';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'ConfigurationView' });
 
@@ -363,9 +364,7 @@ function setActiveTab(tabId: string) {
           class="flex items-center justify-center py-12"
         >
           <div class="text-center">
-            <div
-              class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-cyan-500 dark:border-t-primary rounded-full mx-auto mb-4"
-            ></div>
+            <Spinner class="mx-auto mb-4" />
             <div class="text-content-secondary dark:text-content-muted">
               Loading configuration...
             </div>

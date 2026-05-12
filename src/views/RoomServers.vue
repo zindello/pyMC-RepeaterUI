@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/modals/ConfirmDialog.vue';
 import MessageDialog from '@/components/modals/MessageDialog.vue';
 import RestartModal from '@/components/modals/RestartModal.vue';
 import LocationPicker from '@/components/modals/LocationPicker.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'RoomServersView' });
 
@@ -26,11 +27,23 @@ const showEditModal = ref(false);
 const showRestartModal = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const editingIdentity = ref<any>(null);
+const editOriginalName = ref('');
 const showKeyInCreate = ref(false);
 const showKeyInEdit = ref(false);
 const visibleKeys = ref<Set<string>>(new Set());
 
 // Dialog states
+// Derived counts scoped to room servers only (total_registered includes companions)
+const roomServerRegisteredCount = computed(
+  () => identities.value?.configured?.filter((i: any) => i.registered).length ?? 0,
+);
+const roomServerConfiguredCount = computed(
+  () => identities.value?.configured?.length ?? 0,
+);
+const roomServersSynced = computed(
+  () => roomServerRegisteredCount.value === roomServerConfiguredCount.value,
+);
+
 const showConfirmDelete = ref(false);
 const deleteTarget = ref<string>('');
 const showMessageDialog = ref(false);
@@ -93,7 +106,13 @@ async function fetchIdentities() {
   }
 }
 
+function roundCoords(settings: { latitude: number; longitude: number }) {
+  settings.latitude = Math.round(settings.latitude * 1e6) / 1e6;
+  settings.longitude = Math.round(settings.longitude * 1e6) / 1e6;
+}
+
 async function createIdentity() {
+  roundCoords(newIdentity.value.settings);
   try {
     const response = await ApiService.createIdentity(newIdentity.value);
 
@@ -110,8 +129,16 @@ async function createIdentity() {
 }
 
 async function updateIdentity() {
+  const payload = { ...editingIdentity.value, settings: { ...editingIdentity.value.settings } };
+  roundCoords(payload.settings);
+  if (payload.name !== editOriginalName.value) {
+    payload.new_name = payload.name;
+    payload.name = editOriginalName.value;
+  } else {
+    delete payload.new_name;
+  }
   try {
-    const response = await ApiService.updateIdentity(editingIdentity.value);
+    const response = await ApiService.updateIdentity(payload);
 
     if (response.success) {
       showEditModal.value = false;
@@ -174,10 +201,11 @@ async function sendRoomServerAdvert(name: string) {
 
 function openEditModal(identity: unknown) {
   editingIdentity.value = JSON.parse(JSON.stringify(identity));
+  editOriginalName.value = editingIdentity.value.name;
+  delete editingIdentity.value.new_name;
   if (!editingIdentity.value.settings) {
     editingIdentity.value.settings = {};
   }
-  if (!editingIdentity.value.new_name) editingIdentity.value.new_name = '';
   if (!editingIdentity.value.settings.admin_password) editingIdentity.value.settings.admin_password = '';
   if (!editingIdentity.value.settings.guest_password) editingIdentity.value.settings.guest_password = '';
   if (editingIdentity.value.settings.latitude == null) editingIdentity.value.settings.latitude = 0;
@@ -487,138 +515,61 @@ async function removeClient(publicKey: string, identityHash?: string) {
       class="grid grid-cols-1 md:grid-cols-3 gap-4"
     >
       <!-- Total Configured -->
-      <div
-        class="group relative overflow-hidden glass-card backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-5 hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-        ></div>
-        <div class="relative flex items-center justify-between">
+      <div class="glass-card backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-5">
+        <div class="flex items-center justify-between">
           <div>
-            <div
-              class="text-content-secondary dark:text-content-muted text-xs font-medium mb-2 uppercase tracking-wide"
-            >
+            <div class="text-content-secondary dark:text-content-muted text-xs font-medium mb-2 uppercase tracking-wide">
               Total Configured
             </div>
             <div class="text-3xl font-bold text-content-primary dark:text-content-primary mb-1">
-              {{ identities.total_configured }}
+              {{ roomServerConfiguredCount }}
             </div>
           </div>
-          <div
-            class="bg-background-mute dark:bg-white/10 p-3 rounded-[12px] group-hover:bg-background-mute dark:group-hover:bg-stroke/20 transition-colors"
-          >
-            <svg
-              class="w-6 h-6 text-content-secondary dark:text-content-primary/70"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              ></path>
+          <div class="bg-background-mute dark:bg-white/10 p-3 rounded-[12px]">
+            <svg class="w-6 h-6 text-content-secondary dark:text-content-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
           </div>
         </div>
       </div>
 
       <!-- Currently Registered -->
-      <div
-        class="group relative overflow-hidden glass-card backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-5 hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-        ></div>
-        <div class="relative flex items-center justify-between">
+      <div class="glass-card backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-5">
+        <div class="flex items-center justify-between">
           <div>
-            <div
-              class="text-content-secondary dark:text-content-muted text-xs font-medium mb-2 uppercase tracking-wide"
-            >
+            <div class="text-content-secondary dark:text-content-muted text-xs font-medium mb-2 uppercase tracking-wide">
               Currently Registered
             </div>
             <div class="text-3xl font-bold text-primary mb-1">
-              {{ identities.total_registered }}
+              {{ roomServerRegisteredCount }}
             </div>
           </div>
-          <div class="bg-primary/20 p-3 rounded-[12px] group-hover:bg-primary/30 transition-colors">
+          <div class="bg-primary/20 p-3 rounded-[12px]">
             <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
           </div>
         </div>
       </div>
 
       <!-- Status -->
-      <div
-        class="group relative overflow-hidden glass-card backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-5 hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-accent-green/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-        ></div>
-        <div class="relative flex items-center justify-between">
+      <div class="glass-card backdrop-blur-xl border border-stroke-subtle dark:border-white/10 rounded-[15px] p-5">
+        <div class="flex items-center justify-between">
           <div>
-            <div
-              class="text-content-secondary dark:text-content-muted text-xs font-medium mb-2 uppercase tracking-wide"
-            >
+            <div class="text-content-secondary dark:text-content-muted text-xs font-medium mb-2 uppercase tracking-wide">
               Status
             </div>
-            <div
-              class="text-3xl font-bold"
-              :class="
-                identities.total_registered === identities.total_configured
-                  ? 'text-accent-green'
-                  : 'text-accent-yellow'
-              "
-            >
-              {{
-                identities.total_registered === identities.total_configured
-                  ? 'Synced'
-                  : 'Out of Sync'
-              }}
+            <div class="text-3xl font-bold" :class="roomServersSynced ? 'text-accent-green' : 'text-accent-yellow'">
+              {{ roomServersSynced ? 'Synced' : 'Out of Sync' }}
             </div>
           </div>
-          <div
-            :class="[
-              'p-3 rounded-[12px] transition-colors',
-              identities.total_registered === identities.total_configured
-                ? 'bg-accent-green/20 group-hover:bg-accent-green/30'
-                : 'bg-accent-yellow/20 group-hover:bg-accent-yellow/30',
-            ]"
-          >
-            <svg
-              v-if="identities.total_registered === identities.total_configured"
-              class="w-6 h-6 text-accent-green"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
+          <div :class="['p-3 rounded-[12px]', roomServersSynced ? 'bg-accent-green/20' : 'bg-accent-yellow/20']">
+            <svg v-if="roomServersSynced" class="w-6 h-6 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <svg
-              v-else
-              class="w-6 h-6 text-accent-yellow"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
+            <svg v-else class="w-6 h-6 text-accent-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
         </div>
@@ -632,9 +583,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="text-center">
-          <div
-            class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full mx-auto mb-4"
-          ></div>
+          <Spinner class="mx-auto mb-4" />
           <div class="text-content-secondary dark:text-content-primary/70">
             Loading room servers...
           </div>
@@ -660,14 +609,9 @@ async function removeClient(publicKey: string, identityHash?: string) {
         <div
           v-for="identity in identities.configured"
           :key="identity.name"
-          class="group relative overflow-hidden glass-card backdrop-blur-xl rounded-[15px] p-5 border border-stroke-subtle dark:border-white/10 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300"
+          class="glass-card backdrop-blur-xl rounded-[15px] p-5 border border-stroke-subtle dark:border-white/10"
         >
-          <!-- Subtle gradient overlay on hover -->
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
-          ></div>
-
-          <div class="relative flex items-start justify-between">
+          <div class="flex items-start justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-3 mb-4">
                 <!-- Status indicator with pulse -->
@@ -685,7 +629,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
                 </div>
 
                 <h3
-                  class="text-xl font-bold text-content-primary dark:text-content-primary group-hover:text-primary transition-colors"
+                  class="text-xl font-bold text-content-primary dark:text-content-primary"
                 >
                   {{ identity.name }}
                 </h3>
@@ -1075,24 +1019,12 @@ async function removeClient(publicKey: string, identityHash?: string) {
         <!-- Form -->
         <form @submit.prevent="updateIdentity" class="modal-form">
 
-          <!-- Current Name (read-only) -->
+          <!-- Name -->
           <div>
-            <label class="modal-field-label">Current Name</label>
+            <label class="modal-field-label">Name <span class="text-red-500">*</span></label>
             <input
-              :value="editingIdentity.name"
-              disabled
+              v-model="editingIdentity.name"
               type="text"
-              class="modal-input cursor-not-allowed opacity-60"
-            />
-          </div>
-
-          <!-- New Name -->
-          <div>
-            <label class="modal-field-label">New Name (optional)</label>
-            <input
-              v-model="editingIdentity.new_name"
-              type="text"
-              placeholder="Leave empty to keep current name"
               class="modal-input"
             />
           </div>
@@ -1244,6 +1176,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
     message="Room server settings have been saved. A service restart is required for the changes to take effect."
   />
 
+
   <!-- Room Messages Dialog -->
   <Teleport to="body">
   <div
@@ -1355,9 +1288,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
           class="flex items-center justify-center py-12"
         >
           <div class="text-center">
-            <div
-              class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full mx-auto mb-4"
-            ></div>
+            <Spinner class="mx-auto mb-4" />
             <div class="text-content-secondary dark:text-content-primary/70">
               Loading messages...
             </div>
@@ -1507,9 +1438,7 @@ async function removeClient(publicKey: string, identityHash?: string) {
             <div
               class="flex items-center justify-center gap-2 text-content-secondary dark:text-content-muted text-sm"
             >
-              <div
-                class="animate-spin w-4 h-4 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full"
-              ></div>
+              <Spinner size="sm" />
               Loading...
             </div>
           </div>

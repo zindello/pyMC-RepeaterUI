@@ -108,10 +108,7 @@
             :disabled="loading"
             class="button-glass w-full relative overflow-hidden bg-primary/20 hover:bg-primary/30 active:scale-[0.98] text-primary dark:text-white font-semibold py-3 sm:py-4 px-4 rounded-[12px] border border-primary/50 hover:border-primary/60 transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-2.5 group mt-6 sm:mt-8 text-sm sm:text-base backdrop-blur-sm"
           >
-            <div
-              v-if="loading"
-              class="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"
-            ></div>
+            <Spinner v-if="loading" size="sm" color="white" />
             <svg
               v-else
               class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300"
@@ -184,12 +181,13 @@ import { setToken, getClientId } from '@/utils/auth';
 import { authClient } from '@/utils/api';
 import { useAppRuntimeStore } from '@/stores/appRuntime';
 import ChangePasswordModal from '@/components/modals/ChangePasswordModal.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 import GitHubIcon from '@/components/icons/github.vue';
 import CoffeeIcon from '@/components/icons/coffee.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { useTheme } from '@/composables/useTheme';
-import logoDark from '@/assets/logo/logo_pyMC_RBGA_1k-Dark.png';
-import logoLight from '@/assets/logo/logo_pyMC_RBGA_1k-Light.png';
+import logoDark from '@/assets/logo/transparent/logo_pyMC_RBGA_440-Dark.png';
+import logoLight from '@/assets/logo/transparent/logo_pyMC_RBGA_440-Light.png';
 
 // Define component name for linting
 defineOptions({

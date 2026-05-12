@@ -2,6 +2,7 @@
 import { computed, ref, watch, onMounted, nextTick } from 'vue';
 import { useSystemStore } from '@/stores/system';
 import { authClient } from '@/utils/api';
+import Spinner from '@/components/ui/Spinner.vue';
 
 const systemStore = useSystemStore();
 
@@ -299,9 +300,7 @@ const tierBadgeClass = computed(() => {
 
       <!-- Loading State -->
       <div v-if="statsLoading && !rateLimitStats" class="flex items-center justify-center py-4">
-        <div
-          class="animate-spin w-5 h-5 border-2 border-stroke-subtle dark:border-stroke/20 border-t-cyan-500 dark:border-t-primary rounded-full"
-        ></div>
+        <Spinner size="sm" />
         <span class="ml-2 text-sm text-content-muted">Loading stats...</span>
       </div>
 

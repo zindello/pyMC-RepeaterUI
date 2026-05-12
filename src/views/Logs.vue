@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import ApiService from '@/utils/api';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'LogsView' });
 
@@ -355,7 +356,7 @@ onBeforeUnmount(() => {
     >
       <!-- Loading State -->
       <div v-if="loading && allLogs.length === 0" class="p-8 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <Spinner class="mx-auto mb-4" />
         <p class="text-content-secondary dark:text-content-muted">Loading system logs...</p>
       </div>
 

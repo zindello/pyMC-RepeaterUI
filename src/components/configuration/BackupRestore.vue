@@ -60,9 +60,7 @@
         class="cfg-btn-primary"
       >
         <span v-if="exporting" class="flex items-center gap-2">
-          <span
-            class="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full inline-block"
-          ></span>
+          <Spinner size="sm" color="current" class="inline-block" />
           Exporting…
         </span>
         <span v-else class="flex items-center gap-2">
@@ -473,6 +471,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import ApiService from '@/utils/api';
+import Spinner from '@/components/ui/Spinner.vue';
 
 const isInsecure = computed(() => window.location.protocol === 'http:');
 

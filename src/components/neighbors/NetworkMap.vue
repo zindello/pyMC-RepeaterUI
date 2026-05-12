@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
+import Spinner from '@/components/ui/Spinner.vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Supercluster from 'supercluster';
@@ -812,7 +813,7 @@ onUnmounted(() => {
     >
       <!-- Stats still in flight — show spinner -->
       <div v-if="props.statsLoading" class="flex items-center gap-2 text-content-secondary dark:text-content-muted">
-        <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-primary"></div>
+        <Spinner size="xs" />
         <p class="text-xs sm:text-sm">Fetching base station location…</p>
       </div>
 

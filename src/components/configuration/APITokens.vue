@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import apiClient, { API_SERVER_URL } from '@/utils/api';
 import ConfirmDialog from '@/components/modals/ConfirmDialog.vue';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'APITokens' });
 
@@ -209,9 +210,7 @@ onMounted(() => {
     <!-- Loading State -->
     <div v-if="isLoading && tokens.length === 0" class="flex items-center justify-center py-12">
       <div class="text-center">
-        <div
-          class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-primary rounded-full mx-auto mb-4"
-        ></div>
+        <Spinner class="mx-auto mb-4" />
         <div class="text-content-secondary dark:text-content-muted">Loading tokens...</div>
       </div>
     </div>

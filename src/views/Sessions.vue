@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import ApiService from '@/utils/api';
+import Spinner from '@/components/ui/Spinner.vue';
 
 defineOptions({ name: 'SessionsView' });
 
@@ -231,9 +232,7 @@ function formatOptionalAcl(value: unknown): string {
         <!-- Loading State -->
         <div v-if="loading && !initialLoadComplete" class="flex items-center justify-center py-12">
           <div class="text-center">
-            <div
-              class="animate-spin w-8 h-8 border-2 border-stroke-subtle dark:border-stroke/20 border-t-cyan-500 dark:border-t-primary rounded-full mx-auto mb-4"
-            ></div>
+            <Spinner class="mx-auto mb-4" />
             <div class="text-content-secondary dark:text-content-muted">Loading ACL data...</div>
           </div>
         </div>

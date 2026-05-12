@@ -4,7 +4,6 @@ import ApiService from '@/utils/api';
 import ConfirmDialog from '@/components/modals/ConfirmDialog.vue';
 import MessageDialog from '@/components/modals/MessageDialog.vue';
 import ImportRepeaterContactsModal from '@/components/modals/ImportRepeaterContactsModal.vue';
-import RestartModal from '@/components/modals/RestartModal.vue';
 
 defineOptions({ name: 'CompanionsView' });
 
@@ -14,7 +13,6 @@ const error = ref<string | null>(null);
 const identities = ref<any>(null);
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
-const showRestartModal = ref(false);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const editingIdentity = ref<any>(null);
 const editOriginalName = ref('');
@@ -81,7 +79,7 @@ async function createIdentity() {
       showCreateModal.value = false;
       resetForm();
       await fetchIdentities();
-      showRestartModal.value = true;
+      showMessage(response.message || 'Companion created successfully!', 'success');
     } else {
       showMessage(`Failed to create companion: ${response.error}`, 'error');
     }
@@ -110,8 +108,11 @@ async function updateIdentity() {
     if (response.success) {
       showEditModal.value = false;
       editingIdentity.value = null;
+      // Allow the backend time to deregister and re-register the companion
+      // after the hot-reload before we refresh the list.
+      await new Promise((r) => setTimeout(r, 2000));
       await fetchIdentities();
-      showRestartModal.value = true;
+      showMessage(response.message || 'Companion updated successfully!', 'success');
     } else {
       showMessage(`Failed to update companion: ${response.error}`, 'error');
     }
@@ -723,8 +724,4 @@ function onImportDone(imported: number) {
     @close="showMessageDialog = false"
   />
 
-  <RestartModal
-    v-model="showRestartModal"
-    message="Companion settings have been saved. A service restart is required for the changes to take effect."
-  />
 </template>

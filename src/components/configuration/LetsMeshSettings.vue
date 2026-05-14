@@ -2,7 +2,6 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useSystemStore } from '@/stores/system';
 import { authClient } from '@/utils/api';
-import brokerTemplatesData from '@/assets/broker-templates.json';
 import RestartModal from '@/components/modals/RestartModal.vue';
 import BrokerEditModal from '@/components/modals/BrokerEditModal.vue';
 import UnsavedChangesModal from '@/components/ui/UnsavedChangesModal.vue';
@@ -11,12 +10,27 @@ import { useUnsavedChanges } from '@/composables/useUnsavedChanges';
 const systemStore = useSystemStore();
 const mqttConfig = computed(() => systemStore.stats?.config?.mqtt_brokers || {});
 
+// Broker templates are sourced from the repeater's bundled YAML presets
+// (`repeater/presets/*.yaml`), exposed via `GET /api/broker_presets`. This
+// keeps the network catalogue versioned with the repeater itself — adding a
+// new network is a one-file PR on the repeater side and every fresh UI fetch
+// picks it up without a frontend rebuild.
 interface BrokerTemplate {
-  name: string;
-  website: string;
+  id: string;          // preset filename stem, stable identifier
+  name: string;        // YAML `display_name`, or titlecased id fallback
+  website?: string;    // optional, omitted when absent from the YAML
   brokers: Omit<CustomBroker, '_id'>[];
 }
-const BROKER_TEMPLATES: BrokerTemplate[] = brokerTemplatesData as BrokerTemplate[];
+const BROKER_TEMPLATES = ref<BrokerTemplate[]>([]);
+// Tri-state UI signal for the dropdown header so operators can tell the
+// difference between "still loading", "no presets available", and "the
+// repeater doesn't support this endpoint yet".
+const templatesLoading = ref(false);
+const templatesError = ref('');
+// Per-template expansion state for the per-broker chooser. A template with
+// multiple brokers can be expanded by clicking its chevron; the default row
+// click still adds every broker in the template at once.
+const expandedTemplateId = ref<string | null>(null);
 
 interface CustomBroker {
   _id: number;
@@ -282,8 +296,52 @@ function removeBrokerLocal(id: number) {
 
 function addFromTemplate(tpl: BrokerTemplate) {
   showTemplateMenu.value = false;
+  expandedTemplateId.value = null;
   if (editingBrokerId.value !== null) cancelBrokerEdit();
   tpl.brokers.forEach(b => customBrokers.value.push(mkBroker(b)));
+}
+
+// Add just one broker from a template - used by the per-broker chooser when
+// an operator wants e.g. only the primary Waev broker, not both A and B.
+function addOneFromTemplate(broker: Omit<CustomBroker, '_id'>) {
+  showTemplateMenu.value = false;
+  expandedTemplateId.value = null;
+  if (editingBrokerId.value !== null) cancelBrokerEdit();
+  customBrokers.value.push(mkBroker(broker));
+}
+
+function toggleTemplateExpansion(id: string) {
+  expandedTemplateId.value = expandedTemplateId.value === id ? null : id;
+}
+
+// Fetch bundled presets from the repeater. Designed to fail soft so an older
+// repeater (no /api/broker_presets endpoint) still renders a working form;
+// operators can fall back to the manual "Add" button.
+async function fetchBrokerPresets() {
+  templatesLoading.value = true;
+  templatesError.value = '';
+  try {
+    const res = await authClient.get('/api/broker_presets');
+    const data = res.data;
+    if (data?.success && Array.isArray(data.data)) {
+      BROKER_TEMPLATES.value = data.data as BrokerTemplate[];
+    } else {
+      BROKER_TEMPLATES.value = [];
+      templatesError.value = data?.error || 'Failed to load broker presets';
+    }
+  } catch (err: unknown) {
+    BROKER_TEMPLATES.value = [];
+    const e = err as { response?: { status?: number } };
+    // 404 on older repeaters: keep the dropdown quiet rather than alarming.
+    // Surface real network/server errors so operators have something to act on.
+    if (e?.response?.status === 404) {
+      templatesError.value = '';
+    } else {
+      templatesError.value = 'Could not reach repeater for broker presets';
+    }
+  } finally {
+    templatesLoading.value = false;
+  }
 }
 
 const draftIsValid = computed(() => {
@@ -325,6 +383,7 @@ let _statusTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   fetchStatus();
+  fetchBrokerPresets();
   _statusTimer = setInterval(fetchStatus, 5000);
 });
 
@@ -513,29 +572,78 @@ onUnmounted(() => {
             <Transition name="dropdown">
               <div
                 v-if="showTemplateMenu"
-                class="absolute right-0 top-full mt-1 z-20 w-64 rounded-lg shadow-lg border border-stroke-subtle dark:border-stroke/20 bg-white dark:bg-[var(--color-surface)] overflow-hidden"
+                class="absolute right-0 top-full mt-1 z-20 w-72 rounded-lg shadow-lg border border-stroke-subtle dark:border-stroke/20 bg-white dark:bg-[var(--color-surface)] overflow-hidden"
               >
                 <div class="px-3 py-2 border-b border-stroke-subtle dark:border-stroke/10">
                   <p class="text-xs font-medium text-content-secondary dark:text-content-muted uppercase tracking-wide">Known Networks</p>
                 </div>
-                <div class="py-1">
-                  <div
-                    v-for="tpl in BROKER_TEMPLATES"
-                    :key="tpl.name"
-                    class="flex items-center gap-2 px-3 py-2.5 hover:bg-background-mute dark:hover:bg-background/30 cursor-pointer group"
-                    @click="addFromTemplate(tpl)"
-                  >
-                    <div class="min-w-0 flex-1">
-                      <p class="text-sm font-medium text-content-primary dark:text-content-primary group-hover:text-primary transition-colors">{{ tpl.name }}</p>
-                      <p class="text-xs text-content-secondary dark:text-content-muted">{{ tpl.brokers.length }} broker{{ tpl.brokers.length !== 1 ? 's' : '' }}</p>
+                <!-- Loading / empty / error states.  We keep all three in the
+                     same dropdown surface so the affordance never disappears
+                     unexpectedly when a request is in flight. -->
+                <div v-if="templatesLoading" class="px-3 py-3 text-xs text-content-secondary dark:text-content-muted italic">
+                  Loading presets…
+                </div>
+                <div v-else-if="templatesError" class="px-3 py-3 text-xs text-red-600 dark:text-red-400">
+                  {{ templatesError }}
+                </div>
+                <div v-else-if="!BROKER_TEMPLATES.length" class="px-3 py-3 text-xs text-content-secondary dark:text-content-muted italic">
+                  No bundled presets. Use "Add" to configure manually.
+                </div>
+                <div v-else class="py-1">
+                  <div v-for="tpl in BROKER_TEMPLATES" :key="tpl.id" class="border-b border-stroke-subtle dark:border-stroke/10 last:border-b-0">
+                    <!-- Template row.  Click anywhere on the row (outside the
+                         chevron / website link) adds every broker in the
+                         template, preserving the pre-existing default. -->
+                    <div
+                      class="flex items-center gap-2 px-3 py-2.5 hover:bg-background-mute dark:hover:bg-background/30 cursor-pointer group"
+                      @click="addFromTemplate(tpl)"
+                    >
+                      <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-content-primary dark:text-content-primary group-hover:text-primary transition-colors">{{ tpl.name }}</p>
+                        <p class="text-xs text-content-secondary dark:text-content-muted">{{ tpl.brokers.length }} broker{{ tpl.brokers.length !== 1 ? 's' : '' }}</p>
+                      </div>
+                      <!-- Chevron expands the per-broker chooser. Only
+                           rendered for multi-broker templates because the
+                           single-broker case has nothing to disambiguate. -->
+                      <button
+                        v-if="tpl.brokers.length > 1"
+                        @click.stop="toggleTemplateExpansion(tpl.id)"
+                        :title="expandedTemplateId === tpl.id ? 'Hide individual brokers' : 'Pick individual brokers'"
+                        class="flex-shrink-0 p-1 rounded hover:bg-primary/10 text-content-secondary dark:text-content-muted hover:text-primary transition-colors"
+                      >
+                        <svg class="w-3.5 h-3.5 transition-transform" :class="expandedTemplateId === tpl.id ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <a v-if="tpl.website" :href="tpl.website" target="_blank" rel="noopener noreferrer" title="Visit website"
+                        class="flex-shrink-0 p-1 rounded hover:bg-primary/10 text-content-secondary dark:text-content-muted hover:text-primary transition-colors"
+                        @click.stop>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
                     </div>
-                    <a :href="tpl.website" target="_blank" rel="noopener noreferrer" title="Visit website"
-                      class="flex-shrink-0 p-1 rounded hover:bg-primary/10 text-content-secondary dark:text-content-muted hover:text-primary transition-colors"
-                      @click.stop>
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
+                    <!-- Per-broker chooser.  Each entry's "+" button adds just
+                         that broker, so an operator can opt out of one half of
+                         a dual-broker preset without ejecting from the
+                         template flow. -->
+                    <div
+                      v-if="expandedTemplateId === tpl.id && tpl.brokers.length > 1"
+                      class="bg-background-mute/40 dark:bg-background/20 border-t border-stroke-subtle dark:border-stroke/10"
+                    >
+                      <div
+                        v-for="(broker, idx) in tpl.brokers"
+                        :key="`${tpl.id}-${idx}`"
+                        class="flex items-center gap-2 pl-6 pr-3 py-2 hover:bg-background-mute dark:hover:bg-background/30 cursor-pointer"
+                        @click="addOneFromTemplate(broker)"
+                      >
+                        <div class="min-w-0 flex-1">
+                          <p class="text-xs font-medium text-content-primary dark:text-content-primary truncate">{{ broker.name }}</p>
+                          <p class="text-[11px] font-mono text-content-secondary dark:text-content-muted truncate">{{ broker.host }}:{{ broker.port }}</p>
+                        </div>
+                        <span class="flex-shrink-0 inline-flex items-center justify-center w-5 h-5 rounded bg-primary/10 text-primary text-xs font-bold" title="Add only this broker">+</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

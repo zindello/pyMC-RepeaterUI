@@ -138,9 +138,18 @@ function handleCancel() {
                 <label class="modal-field-label">
                   Format <span class="text-red-500">*</span>
                 </label>
+                <!-- The first three values belong to the MC2MQTT (MeshCoreToMQTT)
+                     protocol family - all share the canonical topic
+                     `meshcore/{IATA}/{PUBLIC_KEY}/...`. They differ only in
+                     name flavor for downstream ingest pipelines. The legacy
+                     `mqtt` value speaks an operator-defined custom topic. The
+                     option list mirrors `MC2MQTT_FORMATS` in
+                     `repeater/data_acquisition/mqtt_handler.py:99`. -->
                 <select v-model="draft.format" class="modal-select">
-                  <option value="letsmesh">LetsMesh MQTT format</option>
-                  <option value="mqtt">pyMC MQTT format</option>
+                  <option value="meshcoretomqtt">Meshcoretomqtt</option>
+                  <option value="letsmesh">Letsmesh</option>
+                  <option value="waev">Waev</option>
+                  <option value="mqtt">pyMC</option>
                 </select>
               </div>
               <div class="flex items-center gap-3 pb-1.5">

@@ -16,6 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@noble/hashes": "^2.2.0",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/leaflet": "^1.9.21",
     "@types/supercluster": "^7.1.3",

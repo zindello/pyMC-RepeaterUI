@@ -295,7 +295,7 @@ function handleUnscopedFloodPolicyChange(policy: 'allow' | 'deny') {
   unscopedFloodPolicy.value = policy;
 }
 
-const { showUnsavedModal, requestLeave, handleDiscard, handleSave } = useUnsavedChanges(
+const { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel } = useUnsavedChanges(
   isEditing,
   isSaving,
   cancelEditing,
@@ -312,6 +312,7 @@ defineExpose({ requestLeave, isEditing });
     label="Region Configuration"
     @discard="handleDiscard"
     @save="handleSave"
+    @cancel="handleCancel"
   />
 
   <div class="space-y-12">

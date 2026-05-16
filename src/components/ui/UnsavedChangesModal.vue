@@ -8,6 +8,7 @@ defineProps<{
 defineEmits<{
   discard: [];
   save: [];
+  cancel: [];
 }>();
 </script>
 
@@ -53,11 +54,18 @@ defineEmits<{
           </div>
           <div class="modal-actions">
             <button
-              @click="$emit('discard')"
+              @click="$emit('cancel')"
               :disabled="isSaving"
               class="modal-btn-cancel"
             >
-              Discard Changes
+              Keep Editing
+            </button>
+            <button
+              @click="$emit('discard')"
+              :disabled="isSaving"
+              class="modal-btn-danger"
+            >
+              Discard
             </button>
             <button
               @click="$emit('save')"

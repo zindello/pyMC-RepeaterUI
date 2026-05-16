@@ -94,7 +94,7 @@ const saveChanges = async () => {
   }
 };
 
-const { showUnsavedModal, requestLeave, handleDiscard, handleSave } = useUnsavedChanges(
+const { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel } = useUnsavedChanges(
   isEditing,
   isSaving,
   cancelEditing,
@@ -111,6 +111,7 @@ defineExpose({ requestLeave, isEditing });
     label="TX Delay settings"
     @discard="handleDiscard"
     @save="handleSave"
+    @cancel="handleCancel"
   />
 
   <div class="space-y-12">

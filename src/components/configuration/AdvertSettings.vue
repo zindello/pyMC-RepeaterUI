@@ -213,7 +213,7 @@ const saveChanges = async () => {
   }
 };
 
-const { showUnsavedModal, requestLeave, handleDiscard, handleSave } = useUnsavedChanges(
+const { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel } = useUnsavedChanges(
   isEditing,
   isSaving,
   cancelEditing,
@@ -247,6 +247,7 @@ const tierBadgeClass = computed(() => {
     label="Advert Limit settings"
     @discard="handleDiscard"
     @save="handleSave"
+    @cancel="handleCancel"
   />
 
   <div ref="rootEl" class="space-y-12">

@@ -55,7 +55,12 @@ function isCurrentTabEditing(): boolean {
 }
 
 function requestCurrentTabLeave(callback: () => void) {
-  editableTabRefs[activeTab.value]?.value?.requestLeave(callback) ?? callback();
+  const ref = editableTabRefs[activeTab.value]?.value;
+  if (ref) {
+    ref.requestLeave(callback);
+  } else {
+    callback();
+  }
 }
 
 function updateFades() {

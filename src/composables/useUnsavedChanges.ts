@@ -9,11 +9,13 @@ export function useUnsavedChanges(
 ) {
   const showUnsavedModal = ref(false);
   const pendingNavFn = ref<(() => void) | null>(null);
+  const pendingCancelFn = ref<(() => void) | null>(null);
 
   onBeforeRouteLeave((_to, _from, next) => {
     if (isEditing.value) {
       showUnsavedModal.value = true;
       pendingNavFn.value = () => next();
+      pendingCancelFn.value = () => next(false);
     } else {
       next();
     }
@@ -23,6 +25,7 @@ export function useUnsavedChanges(
     if (isEditing.value) {
       showUnsavedModal.value = true;
       pendingNavFn.value = callback;
+      pendingCancelFn.value = null;
     } else {
       callback();
     }
@@ -31,6 +34,7 @@ export function useUnsavedChanges(
   function handleDiscard() {
     cancelFn();
     showUnsavedModal.value = false;
+    pendingCancelFn.value = null;
     if (pendingNavFn.value) { pendingNavFn.value(); pendingNavFn.value = null; }
   }
 
@@ -38,9 +42,16 @@ export function useUnsavedChanges(
     const ok = await saveFn();
     if (ok) {
       showUnsavedModal.value = false;
+      pendingCancelFn.value = null;
       if (pendingNavFn.value) { pendingNavFn.value(); pendingNavFn.value = null; }
     }
   }
 
-  return { showUnsavedModal, requestLeave, handleDiscard, handleSave };
+  function handleCancel() {
+    showUnsavedModal.value = false;
+    if (pendingCancelFn.value) { pendingCancelFn.value(); pendingCancelFn.value = null; }
+    pendingNavFn.value = null;
+  }
+
+  return { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel };
 }

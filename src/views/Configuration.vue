@@ -55,7 +55,12 @@ function isCurrentTabEditing(): boolean {
 }
 
 function requestCurrentTabLeave(callback: () => void) {
-  editableTabRefs[activeTab.value]?.value?.requestLeave(callback) ?? callback();
+  const ref = editableTabRefs[activeTab.value]?.value;
+  if (ref) {
+    ref.requestLeave(callback);
+  } else {
+    callback();
+  }
 }
 
 function updateFades() {
@@ -422,40 +427,40 @@ function setActiveTab(tabId: string) {
 
         <!-- Tab Components -->
         <div v-else>
-          <div v-show="activeTab === 'radio'">
+          <div v-if="activeTab === 'radio'">
             <RadioSettings ref="radioRef" key="radio-settings" />
           </div>
-          <div v-show="activeTab === 'repeater'">
+          <div v-if="activeTab === 'repeater'">
             <RepeaterSettings ref="repeaterRef" key="repeater-settings" />
           </div>
-          <div v-show="activeTab === 'advert'">
+          <div v-if="activeTab === 'advert'">
             <AdvertSettings ref="advertRef" key="advert-settings" />
           </div>
-          <div v-show="activeTab === 'duty'">
+          <div v-if="activeTab === 'duty'">
             <DutyCycle ref="dutyRef" key="duty-cycle" />
           </div>
-          <div v-show="activeTab === 'delays'">
+          <div v-if="activeTab === 'delays'">
             <TransmissionDelays ref="delaysRef" key="transmission-delays" />
           </div>
-          <div v-show="activeTab === 'transport'">
+          <div v-if="activeTab === 'transport'">
             <TransportKeys ref="transportRef" key="transport-keys" />
           </div>
-          <div v-show="activeTab === 'api-tokens'">
+          <div v-if="activeTab === 'api-tokens'">
             <APITokens key="api-tokens" />
           </div>
-          <div v-show="activeTab === 'web'">
+          <div v-if="activeTab === 'web'">
             <WebSettings key="web-settings" />
           </div>
-          <div v-show="activeTab === 'observer'">
+          <div v-if="activeTab === 'observer'">
             <LetsMeshSettings ref="letsMeshRef" key="letsmesh-settings" />
           </div>
-          <div v-show="activeTab === 'backup'">
+          <div v-if="activeTab === 'backup'">
             <BackupRestore key="backup-restore" />
           </div>
-          <div v-show="activeTab === 'database'">
+          <div v-if="activeTab === 'database'">
             <DatabaseManagement key="database-management" />
           </div>
-          <div v-show="activeTab === 'memory'">
+          <div v-if="activeTab === 'memory'">
             <MemoryDebug key="memory-debug" />
           </div>
         </div>

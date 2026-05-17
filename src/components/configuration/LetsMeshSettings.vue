@@ -370,7 +370,7 @@ async function saveForNavigation(): Promise<boolean> {
   return false;
 }
 
-const { showUnsavedModal, requestLeave, handleDiscard, handleSave } = useUnsavedChanges(
+const { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel } = useUnsavedChanges(
   isGlobalEditing,
   isSaving,
   cancelGlobalEditing,
@@ -409,7 +409,7 @@ onUnmounted(() => {
   />
 
   <!-- ── Unsaved Changes Modal ──────────────────────────────────────────── -->
-  <UnsavedChangesModal :show="showUnsavedModal" :is-saving="isSaving" label="Broker settings" @discard="handleDiscard" @save="handleSave" />
+  <UnsavedChangesModal :show="showUnsavedModal" :is-saving="isSaving" label="Broker settings" @discard="handleDiscard" @save="handleSave" @cancel="handleCancel" />
 
   <!-- ── Main Content ───────────────────────────────────────────────────── -->
   <div class="space-y-12">

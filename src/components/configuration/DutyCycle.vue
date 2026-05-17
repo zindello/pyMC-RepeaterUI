@@ -56,7 +56,7 @@ const cancelEditing = () => {
   errorMessage.value = '';
 };
 
-const { showUnsavedModal, requestLeave, handleDiscard, handleSave } = useUnsavedChanges(
+const { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel } = useUnsavedChanges(
   isEditing,
   isSaving,
   cancelEditing,
@@ -107,6 +107,7 @@ const saveChanges = async () => {
     label="Duty Cycle settings"
     @discard="handleDiscard"
     @save="handleSave"
+    @cancel="handleCancel"
   />
 
   <div class="space-y-12">

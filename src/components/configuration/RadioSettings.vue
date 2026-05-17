@@ -140,7 +140,7 @@ const saveChanges = async ({ silent = false }: { silent?: boolean } = {}): Promi
   return false;
 };
 
-const { showUnsavedModal, requestLeave, handleDiscard, handleSave } = useUnsavedChanges(
+const { showUnsavedModal, requestLeave, handleDiscard, handleSave, handleCancel } = useUnsavedChanges(
   isEditing,
   isSaving,
   cancelEditing,
@@ -164,6 +164,7 @@ defineExpose({ requestLeave, isEditing });
     label="Radio Settings"
     @discard="handleDiscard"
     @save="handleSave"
+    @cancel="handleCancel"
   />
 
   <div class="space-y-12">

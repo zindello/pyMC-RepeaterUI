@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue';
+import { sha256 } from '@noble/hashes/sha2.js';
 import type { TreeNodeData } from '@/types/tree';
 import { formatTimeAgo } from '@/utils/formatters';
 
@@ -67,11 +68,10 @@ const nameChanged = computed(() => keyName.value.trim() !== originalKeyName.valu
 
 // Derive transport key client-side: SHA-256(#name)[:16] → base64
 // Matches pymc_core get_auto_key_for algorithm
-async function deriveTransportKey(name: string): Promise<string> {
+function deriveTransportKey(name: string): string {
   const fullName = name.startsWith('#') ? name : `#${name}`;
   const data = new TextEncoder().encode(fullName);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const bytes = new Uint8Array(hashBuffer).slice(0, 16);
+  const bytes = sha256(data).slice(0, 16);
   let binary = '';
   bytes.forEach((b) => { binary += String.fromCharCode(b); });
   return btoa(binary);
@@ -79,13 +79,13 @@ async function deriveTransportKey(name: string): Promise<string> {
 
 const liveTransportKey = ref<string | null>(null);
 
-watchEffect(async () => {
+watchEffect(() => {
   const name = keyName.value.trim();
   if (!isRegion.value || !name) {
     liveTransportKey.value = null;
     return;
   }
-  liveTransportKey.value = await deriveTransportKey(name);
+  liveTransportKey.value = deriveTransportKey(name);
 });
 
 // Copy to clipboard function
@@ -96,12 +96,12 @@ const copyToClipboard = (text: string) => {
 };
 
 // Handle form submission
-const handleSave = async () => {
+const handleSave = () => {
   if (!isValid.value || !props.node) return;
 
   const finalName = isRegion.value ? `#${keyName.value.trim()}` : keyName.value.trim();
   const transportKey = isRegion.value && nameChanged.value
-    ? (liveTransportKey.value ?? await deriveTransportKey(keyName.value.trim()))
+    ? (liveTransportKey.value ?? deriveTransportKey(keyName.value.trim()))
     : undefined;
 
   emit('save', {

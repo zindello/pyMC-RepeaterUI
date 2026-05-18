@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed, ref, onBeforeUnmount } from 'vue';
+import { Cpu, Usb, Wifi } from '@lucide/vue';
 import { useSetupStore } from '@/stores/setup';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import Spinner from '@/components/ui/Spinner.vue';
@@ -37,6 +38,61 @@ onMounted(async () => {
 const progressPercentage = computed(() => {
   return (setupStore.currentStep / setupStore.totalSteps) * 100;
 });
+
+type ConnectionType = 'gpio' | 'usb' | 'network';
+
+const connectionFilters: Array<{ key: ConnectionType; title: string; description: string }> = [
+  {
+    key: 'gpio',
+    title: 'HAT GPIO Based Device',
+    description: 'Direct SPI/GPIO connected HATs and board-integrated radios.',
+  },
+  {
+    key: 'usb',
+    title: 'USB Connection',
+    description: 'USB-attached modems including CH341 and pyMC USB modem.',
+  },
+  {
+    key: 'network',
+    title: 'Network Wi-Fi Based',
+    description: 'Remote modem reached over LAN/Wi-Fi using pyMC TCP.',
+  },
+];
+
+function getHardwareConnectionType(
+  hardware: { key: string; config?: Record<string, unknown> },
+): ConnectionType | null {
+  const key = hardware.key.toLowerCase();
+  if (key === 'kiss') {
+    return 'usb';
+  }
+
+  const configured = String(hardware.config?.connection_type || '').toLowerCase();
+  if (configured === 'usb' || configured === 'network' || configured === 'gpio') {
+    return configured;
+  }
+
+  if (key.includes('ch341') || key === 'pymc_usb') return 'usb';
+  if (key === 'pymc_tcp') return 'network';
+  return 'gpio';
+}
+
+const filteredHardwareOptions = computed(() => {
+  const selected = setupStore.selectedHardwareConnection;
+  if (!selected) return [];
+
+  return setupStore.hardwareOptions.filter((hardware) => getHardwareConnectionType(hardware) === selected);
+});
+
+function selectConnectionFilter(connection: ConnectionType) {
+  setupStore.selectedHardwareConnection = connection;
+  if (
+    setupStore.selectedHardware &&
+    !filteredHardwareOptions.value.some((option) => option.key === setupStore.selectedHardware?.key)
+  ) {
+    setupStore.selectedHardware = null;
+  }
+}
 
 async function handleNext() {
   if (setupStore.isLastStep) {
@@ -111,6 +167,7 @@ onBeforeUnmount(() => {
 const stepTitles = [
   'Welcome',
   'Repeater Name',
+  'Connection Type',
   'Hardware Selection',
   'Radio Configuration',
   'Security Setup',
@@ -308,8 +365,47 @@ const stepTitles = [
             </div>
           </div>
 
-          <!-- Hardware Selection Step -->
+          <!-- Connection Type Step -->
           <div v-else-if="setupStore.currentStep === 3" class="space-y-6 mt-8">
+            <p class="text-content-secondary dark:text-content-primary/70 text-center mb-6">
+              Choose how your radio hardware connects to this repeater.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+              <button
+                v-for="connection in connectionFilters"
+                :key="connection.key"
+                @click="selectConnectionFilter(connection.key)"
+                :class="[
+                  'p-6 rounded-[16px] border transition-all duration-300 text-left backdrop-blur-sm min-h-[220px] flex flex-col',
+                  setupStore.selectedHardwareConnection === connection.key
+                    ? 'bg-gradient-to-r from-primary/20 to-primary/10 border-primary/50 shadow-lg shadow-primary/20'
+                    : 'bg-background-mute dark:bg-white/5 border-stroke-subtle dark:border-stroke/10 hover:bg-stroke-subtle dark:hover:bg-white/10 hover:border-stroke dark:hover:border-stroke/20',
+                ]"
+              >
+                <div
+                  :class="[
+                    'mb-5 w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-300',
+                    setupStore.selectedHardwareConnection === connection.key
+                      ? 'bg-primary/20 border-primary/40 shadow-md shadow-primary/20'
+                      : 'bg-white/60 dark:bg-white/10 border-stroke-subtle dark:border-stroke/20',
+                  ]"
+                >
+                  <Cpu v-if="connection.key === 'gpio'" class="w-9 h-9 text-primary" :stroke-width="1.8" />
+                  <Usb v-else-if="connection.key === 'usb'" class="w-9 h-9 text-primary" :stroke-width="1.8" />
+                  <Wifi v-else class="w-9 h-9 text-primary" :stroke-width="1.8" />
+                </div>
+                <div class="font-semibold text-lg text-content-primary dark:text-content-primary mb-2">
+                  {{ connection.title }}
+                </div>
+                <div class="text-sm text-content-secondary dark:text-content-muted">
+                  {{ connection.description }}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hardware Selection Step -->
+          <div v-else-if="setupStore.currentStep === 4" class="space-y-6 mt-8">
             <p class="text-content-secondary dark:text-content-primary/70 text-center mb-6">
               Select your hardware board type
             </p>
@@ -320,14 +416,20 @@ const stepTitles = [
               Loading hardware options...
             </div>
             <div
-              v-else-if="setupStore.hardwareOptions.length === 0"
+              v-else-if="!setupStore.selectedHardwareConnection"
               class="text-center text-content-secondary dark:text-content-muted"
             >
-              No hardware options available
+              Choose a connection type first
+            </div>
+            <div
+              v-else-if="filteredHardwareOptions.length === 0"
+              class="text-center text-content-secondary dark:text-content-muted"
+            >
+              No hardware options available for this connection type
             </div>
             <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
               <button
-                v-for="hardware in setupStore.hardwareOptions"
+                v-for="hardware in filteredHardwareOptions"
                 :key="hardware.key"
                 @click="setupStore.selectedHardware = hardware"
                 :class="[
@@ -348,7 +450,7 @@ const stepTitles = [
           </div>
 
           <!-- Radio Preset Step -->
-          <div v-else-if="setupStore.currentStep === 4" class="space-y-6 mt-8">
+          <div v-else-if="setupStore.currentStep === 5" class="space-y-6 mt-8">
             <p class="text-content-secondary dark:text-content-primary/70 text-center mb-6">
               Choose a radio configuration preset for your region or create a custom configuration
             </p>
@@ -548,7 +650,7 @@ const stepTitles = [
           </div>
 
           <!-- Security Step -->
-          <div v-else-if="setupStore.currentStep === 5" class="space-y-6 mt-8">
+          <div v-else-if="setupStore.currentStep === 6" class="space-y-6 mt-8">
             <p class="text-content-secondary dark:text-content-primary/70 text-center mb-6">
               Set a secure admin password to protect your repeater
             </p>

@@ -242,6 +242,19 @@ const trackedBreakdown = computed(() => {
 // Notification badge logic - always show so users know the bell is interactive
 const showNotificationBadge = computed(() => true);
 
+const radioWarning = computed(() => {
+  const status = String(systemStore.stats?.radio_status ?? '').toLowerCase();
+  if (status !== 'degraded') return null;
+
+  const configuredType = systemStore.stats?.config?.radio_type ?? 'configured radio';
+  const details = systemStore.stats?.radio_error || 'Radio initialization failed';
+
+  return {
+    title: `Radio degraded (${configuredType})`,
+    details,
+  };
+});
+
 // Utility functions
 const getContactTypeColor = (contactType: string) => {
   const colors = {
@@ -786,6 +799,31 @@ const toggleMobileSidebar = () => {
           </div>
         </div>
         </Teleport>
+      </div>
+    </div>
+
+    <div
+      v-if="radioWarning"
+      class="mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-amber-800 dark:text-amber-200"
+      role="alert"
+    >
+      <div class="flex items-start gap-3">
+        <svg
+          class="w-5 h-5 mt-0.5 text-amber-600 dark:text-amber-300 shrink-0"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5zM10 14a1 1 0 100 2 1 1 0 000-2z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div>
+          <p class="font-semibold">{{ radioWarning.title }}</p>
+          <p class="text-sm opacity-90">{{ radioWarning.details }}</p>
+        </div>
       </div>
     </div>
   </div>

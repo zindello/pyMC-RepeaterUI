@@ -17,10 +17,12 @@ interface HardwareOption {
   config: any;
 }
 
+type HardwareConnectionType = 'gpio' | 'usb' | 'network';
+
 export const useSetupStore = defineStore('setup', () => {
   // State
   const currentStep = ref(1);
-  const totalSteps = ref(5);
+  const totalSteps = ref(6);
 
   // Form data
   const nodeName = ref(
@@ -29,6 +31,7 @@ export const useSetupStore = defineStore('setup', () => {
       .padStart(4, '0')}`,
   );
   const selectedHardware = ref<HardwareOption | null>(null);
+  const selectedHardwareConnection = ref<HardwareConnectionType | null>(null);
   const selectedRadioPreset = ref<RadioPreset | null>(null);
   const adminPassword = ref('');
   const confirmPassword = ref('');
@@ -59,15 +62,17 @@ export const useSetupStore = defineStore('setup', () => {
       case 2:
         return nodeName.value.trim().length > 0;
       case 3:
-        return selectedHardware.value !== null;
+        return selectedHardwareConnection.value !== null;
       case 4:
+        return selectedHardware.value !== null;
+      case 5:
         return useCustomRadio.value
           ? customRadio.value.frequency &&
               customRadio.value.spreading_factor &&
               customRadio.value.bandwidth &&
               customRadio.value.coding_rate
           : selectedRadioPreset.value !== null;
-      case 5:
+      case 6:
         return adminPassword.value.length >= 6 && adminPassword.value === confirmPassword.value;
       default:
         return false;
@@ -220,6 +225,7 @@ export const useSetupStore = defineStore('setup', () => {
       .toString()
       .padStart(4, '0')}`;
     selectedHardware.value = null;
+    selectedHardwareConnection.value = null;
     selectedRadioPreset.value = null;
     useCustomRadio.value = false;
     customRadio.value = {
@@ -239,6 +245,7 @@ export const useSetupStore = defineStore('setup', () => {
     totalSteps,
     nodeName,
     selectedHardware,
+    selectedHardwareConnection,
     selectedRadioPreset,
     useCustomRadio,
     customRadio,

@@ -121,6 +121,7 @@ export interface SystemStats {
   disk_usage?: number;
   temperature?: number;
   radio_status?: string;
+  radio_error?: string;
   last_packet_time?: number;
   noise_floor_dbm?: number;
   utilization_percent?: number | { source?: string; parsedValue?: number };
@@ -128,6 +129,7 @@ export interface SystemStats {
   cache_ttl?: number;
   config?: {
     node_name?: string;
+    radio_type?: string;
     repeater?: {
       mode?: 'forward' | 'monitor' | 'no_tx';
       use_score_for_tx?: boolean;
